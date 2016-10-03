@@ -1,0 +1,5 @@
+nose
+mock<=1.0.1
+ccm>=2.1.2
+unittest2
+PyYAML
