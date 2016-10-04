@@ -8,6 +8,7 @@
 # http://www.datastax.com/terms/datastax-dse-driver-license-terms
 
 import logging
+import copy
 
 from gremlin_python.structure.graph import Graph
 from gremlin_python.driver.remote_connection import RemoteConnection, RemoteTraversal, RemoteTraversalSideEffects
@@ -15,13 +16,21 @@ from gremlin_python.process.graph_traversal import GraphTraversal
 from gremlin_python.process.traversal import Traverser
 
 from cassandra import ConsistencyLevel
-from cassandra.cluster import default_lbp_factory
 
-from dse.cluster import GraphExecutionProfile
-from dse.policies import DSELoadBalancingPolicy
+from dse.cluster import Session, GraphExecutionProfile
 from dse.graph import GraphOptions
 
 from dse_tinkerpop.graphson import GraphSONReader, GraphSONWriter
+
+
+EXEC_PROFILE_GRAPH_TRAVERSAL_DEFAULT = object()
+"""
+Key for the default graph traversal execution profile, used when no other profile is selected in
+``DSETinkerPop.execute_traversal()``.
+
+Use this as the key in `Cluster(execution_profiles) <http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster>`_
+to override the default graph profile.
+"""
 
 
 class NullHandler(logging.Handler):
@@ -33,6 +42,14 @@ log = logging.getLogger(__name__)
 
 __version_info__ = (1, 0, '0a1')
 __version__ = '.'.join(map(str, __version_info__))
+
+
+def _register_traversal_execution_profile(session):
+    if EXEC_PROFILE_GRAPH_TRAVERSAL_DEFAULT not in session.cluster.profile_manager.profiles:
+        session.cluster.add_execution_profile(
+            EXEC_PROFILE_GRAPH_TRAVERSAL_DEFAULT,
+            GraphTraversalExecutionProfile()
+        )
 
 
 def graph_traversal_row_factory(column_names, rows):
@@ -76,45 +93,40 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
 
     :param session: A DSE session
     :param graph_name: (Optional) DSE Graph name
-    :param execution_profile: (Optional) Execution profile for traversal queries. Default is set to :class:`.GraphTraversalExecutionProfile`.
+    :param execution_profile: (Optional) Execution profile name for traversal queries. Default is set to :class:`.GraphTraversalExecutionProfile`.
     """
 
     session = None
+    graph_name = None
     execution_profile = None
 
-    _execution_profile_key = None
     _EMPTY_SIDE_EFFECTS_KEYS = lambda: set()
     _EMPTY_SIDE_EFFECTS_VALUES = lambda k: []
 
     def __init__(self, session, graph_name=None, execution_profile=None):
         super(DSESessionRemoteGraphConnection, self).__init__(None, None)
 
-        if not session:
+        if not isinstance(session, Session):
             raise ValueError('A DSE Session must be provided to execute graph traversal queries.')
 
         self.session = session
+        self.graph_name = graph_name
         self.execution_profile = execution_profile
-        self._execution_profile_key = object()
-
-        if not self.execution_profile:
-            lbp = DSELoadBalancingPolicy(default_lbp_factory())
-            self.execution_profile = GraphTraversalExecutionProfile(load_balancing_policy=lbp, request_timeout=60. * 3.)
-
-        self.execution_profile.graph_options.graph_name = graph_name
-        self.session.cluster.add_execution_profile(
-            self._execution_profile_key,
-            self.execution_profile
-        )
+        _register_traversal_execution_profile(session)
 
     def submit(self, bytecode):
 
         try:
             query = GraphSONWriter.writeObject(bytecode)
         except Exception as e:
-            log.exception("Error preparing graphson query:")
+            log.exception("Error preparing graphson traversal query:")
             raise
 
-        traversers = self.session.execute_graph(query, execution_profile=self._execution_profile_key)
+        ep = self.execution_profile or EXEC_PROFILE_GRAPH_TRAVERSAL_DEFAULT
+        ep_tmp = self.session.execution_profile_clone_update(ep)
+        graph_options = copy.copy(ep_tmp.graph_options)
+        graph_options.graph_name = self.graph_name
+        traversers = self.session.execute_graph(query, execution_profile=ep_tmp)
         return RemoteTraversal(iter(traversers),
                                RemoteTraversalSideEffects(self._EMPTY_SIDE_EFFECTS_KEYS, self._EMPTY_SIDE_EFFECTS_VALUES))
 
@@ -122,16 +134,34 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
 class DSETinkerPop(object):
     """
     DSE TinkerPop utility class for GraphTraversal construction and execution.
+
+    :param session: A DSE session
+    :param graph_name: (Optional) DSE Graph name
+    :param execution_profile: (Optional) Execution profile name for traversal queries. Default is set to :class:`.GraphTraversalExecutionProfile`.
     """
 
+    session = None
+    execution_profile = None
+    graph_name = None
+
+    def __init__(self, session, graph_name=None, execution_profile=None):
+
+        if not isinstance(session, Session):
+            raise ValueError('A DSE Session must be provided to execute graph traversal queries.')
+
+        self.session = session
+        self.graph_name = graph_name
+        self.execution_profile = execution_profile
+        _register_traversal_execution_profile(session)
+
     @staticmethod
-    def graph_traversal(session, graph_name=None, execution_profile=None):
+    def graph_traversal_source_from_session(session, graph_name=None, execution_profile=None):
         """
         Returns a TinkerPop GraphTraversalSource to execute graph traversals on a DSE session.
 
         :param session: A DSE session
         :param graph_name: (Optional) DSE Graph name
-        :param execution_profile: (Optional) Execution profile for traversal queries. Default is set to :class:`.GraphTraversalExecutionProfile`.
+        :param execution_profile: (Optional) Execution profile name for traversal queries. Default is set to :class:`.GraphTraversalExecutionProfile`.
 
         .. code-block:: python
 
@@ -141,8 +171,39 @@ class DSETinkerPop(object):
             c = Cluster()
             session = c.connect()
 
-            g = DSETinkerPop.graph_traversal(session, 'my_graph')
+            g = DSETinkerPop.graph_traversal_source_from_session(session, 'my_graph')
             print g.V().valueMap().toList():
         """
         graph = Graph()
         return graph.traversal().withRemote(DSESessionRemoteGraphConnection(session, graph_name, execution_profile))
+
+    def graph_traversal_source(self):
+        """
+        Returns a TinkerPop GraphTraversalSource binded to the DSETinkerPop instance session.
+
+        .. code-block:: python
+
+            from dse.cluster import Cluster
+            from dse_tinkerpop import DSETinkerPop
+
+            c = Cluster()
+            session = c.connect()
+
+            dse_tinkerpop = DSETinkerPop(session, 'my_graph')
+            g = dse_tinkerpop.graph_traversal_source()
+            print g.V().valueMap().toList():
+
+        """
+        graph = Graph()
+        return graph.traversal().withRemote(
+            DSESessionRemoteGraphConnection(self.session, self.graph_name, self.execution_profile))
+
+    def execute_traversal(traversal):
+        """
+        Execute a TinkerPop GraphTraversal
+
+        This statement have to be executed using `session.execute_graph()` with a GraphTraversalExecutionProfile.
+
+        :param traversal: A TinkerPop GraphTraversal
+        """
+        pass
