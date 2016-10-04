@@ -126,6 +126,7 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
         ep_tmp = self.session.execution_profile_clone_update(ep)
         graph_options = copy.copy(ep_tmp.graph_options)
         graph_options.graph_name = self.graph_name
+
         traversers = self.session.execute_graph(query, execution_profile=ep_tmp)
         return RemoteTraversal(iter(traversers),
                                RemoteTraversalSideEffects(self._EMPTY_SIDE_EFFECTS_KEYS, self._EMPTY_SIDE_EFFECTS_VALUES))
@@ -198,12 +199,33 @@ class DSETinkerPop(object):
         return graph.traversal().withRemote(
             DSESessionRemoteGraphConnection(self.session, self.graph_name, self.execution_profile))
 
-    def execute_traversal(traversal):
+    def execute_traversal(self, traversal, trace=False, execution_profile=None):
         """
-        Execute a TinkerPop GraphTraversal
-
-        This statement have to be executed using `session.execute_graph()` with a GraphTraversalExecutionProfile.
+        Execute a TinkerPop GraphTraversal synchronously.
 
         :param traversal: A TinkerPop GraphTraversal
         """
-        pass
+        return self.execute_traversal_async(traversal, trace=trace, execution_profile=execution_profile).result()
+
+    def execute_traversal_async(self, traversal, trace=False, execution_profile=None):
+        """
+        Execute a TinkerPop GraphTraversal asynchronously and return a `ResponseFuture <http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.ResponseFuture.result>`_
+        object which callbacks may be attached to for asynchronous response delivery. You may also call ``ResponseFuture.result()`` to synchronously block for
+        results at any time.
+        """
+
+        if not isinstance(traversal, GraphTraversal):
+            raise TypeError('traversal must be an instance of GraphTraversal.')
+
+        try:
+            query = GraphSONWriter.writeObject(traversal)
+        except Exception:
+            log.exception("Error preparing graphson traversal query:")
+            raise
+
+        ep = execution_profile or self.execution_profile or EXEC_PROFILE_GRAPH_TRAVERSAL_DEFAULT
+        ep_tmp = self.session.execution_profile_clone_update(ep)
+        graph_options = copy.copy(ep_tmp.graph_options)
+        graph_options.graph_name = self.graph_name
+
+        return self.session.execute_graph_async(query, trace=trace, execution_profile=ep_tmp)
