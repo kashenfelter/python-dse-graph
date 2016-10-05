@@ -30,7 +30,7 @@ __version_info__ = (1, 0, '0a1')
 __version__ = '.'.join(map(str, __version_info__))
 
 
-def _clone_execution_profile(session, execution_profile, graph_name):
+def _get_traversal_execution_profile(session, execution_profile, graph_name):
     ep = session.execution_profile_clone_update(execution_profile, row_factory=graph_traversal_row_factory)
     graph_options = ep.graph_options.copy()
     graph_options.graph_language='bytecode-json'
@@ -71,14 +71,10 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
 
     def submit(self, bytecode):
 
-        try:
-            query = GraphSONWriter.writeObject(bytecode)
-        except Exception as e:
-            log.exception("Error preparing graphson traversal query:")
-            raise
+        query = DSETinkerPop.prepare_traversal_query(bytecode)
 
         ep = self.execution_profile or EXEC_PROFILE_GRAPH_DEFAULT
-        execution_profile = _clone_execution_profile(self.session, ep, self.graph_name)
+        execution_profile = _get_traversal_execution_profile(self.session, ep, self.graph_name)
 
         traversers = self.session.execute_graph(query, execution_profile=execution_profile)
         return RemoteTraversal(iter(traversers), TraversalSideEffects())
@@ -105,6 +101,22 @@ class DSETinkerPop(object):
         self.session = session
         self.graph_name = graph_name
         self.execution_profile = execution_profile
+
+    @staticmethod
+    def prepare_traversal_query(traversal):
+        """
+        Prepare and return a query string (GraphSON) generated with a traversal.
+
+        :param traversal: The GraphTraversal object
+        """
+
+        try:
+            query = GraphSONWriter.writeObject(traversal)
+        except Exception as e:
+            log.exception("Error preparing graphson traversal query:")
+            raise
+
+        return query
 
     @staticmethod
     def graph_traversal_source_from_session(session, graph_name=None, execution_profile=None):
@@ -168,14 +180,10 @@ class DSETinkerPop(object):
         if not isinstance(traversal, GraphTraversal):
             raise TypeError('traversal must be an instance of GraphTraversal.')
 
-        try:
-            query = GraphSONWriter.writeObject(traversal)
-        except Exception:
-            log.exception("Error preparing graphson traversal query:")
-            raise
+        query = self.prepare_traversal_query(traversal)
 
         if not execution_profile:
             ep = self.execution_profile or EXEC_PROFILE_GRAPH_DEFAULT
-            execution_profile = _clone_execution_profile(self.session, ep, self.graph_name)
+            execution_profile = _get_traversal_execution_profile(self.session, ep, self.graph_name)
 
         return self.session.execute_graph_async(query, trace=trace, execution_profile=execution_profile)
