@@ -52,6 +52,14 @@ def _register_traversal_execution_profile(session):
         )
 
 
+def _clone_execution_profile(session, execution_profile, graph_name):
+    ep = session.execution_profile_clone_update(execution_profile)
+    graph_options = copy.deepcopy(ep.graph_options)
+    graph_options.graph_name = graph_name
+    ep.graph_options = graph_options
+    return ep
+
+
 def graph_traversal_row_factory(column_names, rows):
     """
     Row Factory that returns the decoded graphson as Traversers.
@@ -123,11 +131,9 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
             raise
 
         ep = self.execution_profile or EXEC_PROFILE_GRAPH_TRAVERSAL_DEFAULT
-        ep_tmp = self.session.execution_profile_clone_update(ep)
-        graph_options = copy.copy(ep_tmp.graph_options)
-        graph_options.graph_name = self.graph_name
+        execution_profile = _clone_execution_profile(self.session, ep, self.graph_name)
 
-        traversers = self.session.execute_graph(query, execution_profile=ep_tmp)
+        traversers = self.session.execute_graph(query, execution_profile=execution_profile)
         return RemoteTraversal(iter(traversers),
                                RemoteTraversalSideEffects(self._EMPTY_SIDE_EFFECTS_KEYS, self._EMPTY_SIDE_EFFECTS_VALUES))
 
@@ -223,9 +229,8 @@ class DSETinkerPop(object):
             log.exception("Error preparing graphson traversal query:")
             raise
 
-        ep = execution_profile or self.execution_profile or EXEC_PROFILE_GRAPH_TRAVERSAL_DEFAULT
-        ep_tmp = self.session.execution_profile_clone_update(ep)
-        graph_options = copy.copy(ep_tmp.graph_options)
-        graph_options.graph_name = self.graph_name
+        if not execution_profile:
+            ep = self.execution_profile or EXEC_PROFILE_GRAPH_TRAVERSAL_DEFAULT
+            execution_profile = _clone_execution_profile(self.session, ep, self.graph_name)
 
-        return self.session.execute_graph_async(query, trace=trace, execution_profile=ep_tmp)
+        return self.session.execute_graph_async(query, trace=trace, execution_profile=execution_profile)
