@@ -10,9 +10,9 @@
 import logging
 
 from gremlin_python.structure.graph import Graph
-from gremlin_python.driver.remote_connection import RemoteConnection, RemoteTraversal, RemoteTraversalSideEffects
+from gremlin_python.driver.remote_connection import RemoteConnection, RemoteTraversal
 from gremlin_python.process.graph_traversal import GraphTraversal
-from gremlin_python.process.traversal import Traverser
+from gremlin_python.process.traversal import Traverser, TraversalSideEffects
 
 from dse.cluster import Session, GraphExecutionProfile, EXEC_PROFILE_GRAPH_DEFAULT
 
@@ -59,9 +59,6 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
     graph_name = None
     execution_profile = None
 
-    _EMPTY_SIDE_EFFECTS_KEYS = lambda: set()
-    _EMPTY_SIDE_EFFECTS_VALUES = lambda k: []
-
     def __init__(self, session, graph_name=None, execution_profile=None):
         super(DSESessionRemoteGraphConnection, self).__init__(None, None)
 
@@ -84,8 +81,7 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
         execution_profile = _clone_execution_profile(self.session, ep, self.graph_name)
 
         traversers = self.session.execute_graph(query, execution_profile=execution_profile)
-        return RemoteTraversal(iter(traversers),
-                               RemoteTraversalSideEffects(self._EMPTY_SIDE_EFFECTS_KEYS, self._EMPTY_SIDE_EFFECTS_VALUES))
+        return RemoteTraversal(iter(traversers), TraversalSideEffects())
 
 
 class DSETinkerPop(object):
