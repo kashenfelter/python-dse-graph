@@ -60,7 +60,7 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
     graph_name = None
     execution_profile = None
 
-    def __init__(self, session, graph_name=None, execution_profile=None):
+    def __init__(self, session, graph_name, execution_profile=None):
         super(DSESessionRemoteGraphConnection, self).__init__(None, None)
 
         if not isinstance(session, Session):
@@ -97,7 +97,7 @@ class DSETinkerPop(object):
     execution_profile = None
     graph_name = None
 
-    def __init__(self, session, graph_name=None, execution_profile=None):
+    def __init__(self, session, graph_name, execution_profile=None):
 
         if not isinstance(session, Session):
             raise ValueError('A DSE Session must be provided to execute graph traversal queries.')
