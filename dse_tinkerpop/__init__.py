@@ -79,6 +79,10 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
         traversers = self.session.execute_graph(query, execution_profile=execution_profile)
         return RemoteTraversal(iter(traversers), TraversalSideEffects())
 
+    def __str__(self):
+        return "<DSESessionRemoteGraphConnection: graph_name='{0}'>".format(self.graph_name)
+    __repr__ = __str__
+
 
 class DSETinkerPop(object):
     """
@@ -187,3 +191,7 @@ class DSETinkerPop(object):
             execution_profile = _get_traversal_execution_profile(self.session, ep, self.graph_name)
 
         return self.session.execute_graph_async(query, trace=trace, execution_profile=execution_profile)
+
+    def __str__(self):
+        return "<DSETinkerPop: graph_name='{0}'>".format(self.graph_name)
+    __repr__ = __str__
