@@ -122,29 +122,6 @@ class DSETinkerPop(object):
 
         return query
 
-    @staticmethod
-    def graph_traversal_source_from_session(session, graph_name=None, execution_profile=None):
-        """
-        Returns a TinkerPop GraphTraversalSource to execute graph traversals on a DSE session.
-
-        :param session: A DSE session
-        :param graph_name: (Optional) DSE Graph name
-        :param execution_profile: (Optional) Execution profile name for traversal queries. Default is set to :class:`.GraphTraversalExecutionProfile`.
-
-        .. code-block:: python
-
-            from dse.cluster import Cluster
-            from dse_tinkerpop import DSETinkerPop
-
-            c = Cluster()
-            session = c.connect()
-
-            g = DSETinkerPop.graph_traversal_source_from_session(session, 'my_graph')
-            print g.V().valueMap().toList():
-        """
-        graph = Graph()
-        return graph.traversal().withRemote(DSESessionRemoteGraphConnection(session, graph_name, execution_profile))
-
     def graph_traversal_source(self):
         """
         Returns a TinkerPop GraphTraversalSource binded to the DSETinkerPop instance session.
