@@ -31,6 +31,7 @@ __version__ = '.'.join(map(str, __version_info__))
 
 
 def _get_traversal_execution_profile(session, execution_profile, graph_name):
+    execution_profile = execution_profile or EXEC_PROFILE_GRAPH_DEFAULT
     ep = session.execution_profile_clone_update(execution_profile, row_factory=graph_traversal_row_factory)
     graph_options = ep.graph_options.copy()
     graph_options.graph_language='bytecode-json'
@@ -73,8 +74,7 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
 
         query = DSETinkerPop.prepare_traversal_query(bytecode)
 
-        ep = self.execution_profile or EXEC_PROFILE_GRAPH_DEFAULT
-        execution_profile = _get_traversal_execution_profile(self.session, ep, self.graph_name)
+        execution_profile = _get_traversal_execution_profile(self.session, self.execution_profile, self.graph_name)
 
         traversers = self.session.execute_graph(query, execution_profile=execution_profile)
         return RemoteTraversal(iter(traversers), TraversalSideEffects())
@@ -187,8 +187,7 @@ class DSETinkerPop(object):
         query = self.prepare_traversal_query(traversal)
 
         if not execution_profile:
-            ep = self.execution_profile or EXEC_PROFILE_GRAPH_DEFAULT
-            execution_profile = _get_traversal_execution_profile(self.session, ep, self.graph_name)
+            execution_profile = _get_traversal_execution_profile(self.session, self.execution_profile, self.graph_name)
 
         return self.session.execute_graph_async(query, trace=trace, execution_profile=execution_profile)
 
