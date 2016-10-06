@@ -31,7 +31,6 @@ __version__ = '.'.join(map(str, __version_info__))
 
 
 def _get_traversal_execution_profile(session, execution_profile, graph_name):
-    execution_profile = execution_profile or EXEC_PROFILE_GRAPH_DEFAULT
     ep = session.execution_profile_clone_update(execution_profile, row_factory=graph_traversal_row_factory)
     graph_options = ep.graph_options.copy()
     graph_options.graph_language='bytecode-json'
@@ -60,7 +59,7 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
     graph_name = None
     execution_profile = None
 
-    def __init__(self, session, graph_name, execution_profile=None):
+    def __init__(self, session, graph_name, execution_profile=EXEC_PROFILE_GRAPH_DEFAULT):
         super(DSESessionRemoteGraphConnection, self).__init__(None, None)
 
         if not isinstance(session, Session):
@@ -90,14 +89,14 @@ class DSETinkerPop(object):
 
     :param session: A DSE session
     :param graph_name: (Optional) DSE Graph name
-    :param execution_profile: (Optional) Execution profile name for traversal queries. Default is set to :class:`.GraphTraversalExecutionProfile`.
+    :param execution_profile: (Optional) Execution profile name for traversal queries.
     """
 
     session = None
-    execution_profile = None
     graph_name = None
+    execution_profile = None
 
-    def __init__(self, session, graph_name, execution_profile=None):
+    def __init__(self, session, graph_name, execution_profile=EXEC_PROFILE_GRAPH_DEFAULT):
 
         if not isinstance(session, Session):
             raise ValueError('A DSE Session must be provided to execute graph traversal queries.')
@@ -134,8 +133,7 @@ class DSETinkerPop(object):
             c = Cluster()
             session = c.connect()
 
-            dse_tinkerpop = DSETinkerPop(session, 'my_graph')
-            g = dse_tinkerpop.graph_traversal_source()
+            g = DSETinkerPop(session, 'my_graph').graph_traversal_source()
             print g.V().valueMap().toList():
 
         """
@@ -163,10 +161,10 @@ class DSETinkerPop(object):
 
         query = self.prepare_traversal_query(traversal)
 
-        if not execution_profile:
-            execution_profile = _get_traversal_execution_profile(self.session, self.execution_profile, self.graph_name)
+        ep = execution_profile or self.execution_profile
+        ep = _get_traversal_execution_profile(self.session, ep, self.graph_name)
 
-        return self.session.execute_graph_async(query, trace=trace, execution_profile=execution_profile)
+        return self.session.execute_graph_async(query, trace=trace, execution_profile=ep)
 
     def __str__(self):
         return "<DSETinkerPop: graph_name='{0}'>".format(self.graph_name)
