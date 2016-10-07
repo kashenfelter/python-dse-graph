@@ -30,20 +30,27 @@ __version_info__ = (1, 0, '0a1')
 __version__ = '.'.join(map(str, __version_info__))
 
 
-def _get_traversal_execution_profile(session, execution_profile, graph_name):
-    ep = session.execution_profile_clone_update(execution_profile, row_factory=graph_traversal_row_factory)
+def graph_traversal_row_factory(column_names, rows):
+    """
+    Row Factory that returns the decoded graphson.
+    """
+    return [GraphSONReader.readObject(row[0])['result'] for row in rows]
+
+
+def graph_traversal_traverser_row_factory(column_names, rows):
+    """
+    Row Factory that returns the decoded graphson as Traversers.
+    """
+    return [Traverser(GraphSONReader.readObject(row[0])['result']) for row in rows]
+
+
+def _get_traversal_execution_profile(session, execution_profile, graph_name, row_factory=graph_traversal_row_factory):
+    ep = session.execution_profile_clone_update(execution_profile, row_factory=row_factory)
     graph_options = ep.graph_options.copy()
     graph_options.graph_language='bytecode-json'
     graph_options.graph_name = graph_name
     ep.graph_options = graph_options
     return ep
-
-
-def graph_traversal_row_factory(column_names, rows):
-    """
-    Row Factory that returns the decoded graphson as Traversers.
-    """
-    return [Traverser(GraphSONReader.readObject(row[0])['result']) for row in rows]
 
 
 class DSESessionRemoteGraphConnection(RemoteConnection):
@@ -73,7 +80,8 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
 
         query = DSETinkerPop.prepare_traversal_query(bytecode)
 
-        execution_profile = _get_traversal_execution_profile(self.session, self.execution_profile, self.graph_name)
+        execution_profile = _get_traversal_execution_profile(
+            self.session, self.execution_profile, self.graph_name, row_factory=graph_traversal_traverser_row_factory)
 
         traversers = self.session.execute_graph(query, execution_profile=execution_profile)
         return RemoteTraversal(iter(traversers), TraversalSideEffects())
