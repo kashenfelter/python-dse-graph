@@ -43,7 +43,7 @@ from gremlin_python.structure.graph import Edge
 from gremlin_python.structure.graph import Property
 from gremlin_python.structure.graph import Vertex
 from gremlin_python.structure.graph import VertexProperty
-#from gremlin_python.structure.graph import Path
+from gremlin_python.structure.graph import Path
 
 from dse.util import Point, LineString, Polygon
 
@@ -338,17 +338,16 @@ class PropertyDeserializer(GraphSONDeserializer):
         return Property(value["key"], GraphSONReader._objectify(value["value"]))
 
 
-# class PathDeserializer(GraphSONDeserializer):
-#     def _objectify(self, dict):
-#         import pdb;pdb.set_trace()
-#         value = dict[_SymbolHelper._VALUE]
-#         labels = []
-#         objects = []
-#         for label in value["labels"]:
-#             labels.append(set(label))
-#         for object in value["objects"]:
-#             objects.append(GraphSONReader._objectify(object))
-#         return Path(labels, objects)
+class PathDeserializer(GraphSONDeserializer):
+     def _objectify(self, dict):
+         value = dict[_SymbolHelper._VALUE]
+         labels = []
+         objects = []
+         for label in value["labels"]:
+             labels.append(set(label))
+         for object in value["objects"]:
+             objects.append(GraphSONReader._objectify(object))
+         return Path(labels, objects)
 
 
 class _SymbolHelper(object):
@@ -461,7 +460,7 @@ deserializers = {
     "g:Edge": EdgeDeserializer(),
     "g:VertexProperty": VertexPropertyDeserializer(),
     "g:Property": PropertyDeserializer(),
-    #"g:Path": PathDeserializer(),
+    "g:Path": PathDeserializer(),
 
     "g:UUID": UUIDDeserializer(),
     "gx:BigDecimal": NumberDeserializer(),
