@@ -15,8 +15,7 @@ ez_setup.use_setuptools()
 from setuptools import setup
 from distutils.cmd import Command
 
-__version_info__ = (1, 0, '0a1')  # TODO would be nice to avoid this duplication, but can't import dse_tinkerpop
-__version__ = '.'.join(map(str, __version_info__))
+exec(open('dse_tinkerpop/_version.py').read())
 
 long_description = ""
 with open("README.rst") as f:

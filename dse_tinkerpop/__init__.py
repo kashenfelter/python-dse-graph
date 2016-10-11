@@ -17,6 +17,7 @@ from gremlin_python.process.traversal import Traverser, TraversalSideEffects
 from dse.cluster import Session, GraphExecutionProfile, EXEC_PROFILE_GRAPH_DEFAULT
 
 from dse_tinkerpop.graphson import GraphSONReader, GraphSONWriter
+from dse_tinkerpop._version import __version__, __version_info__
 
 
 class NullHandler(logging.Handler):
@@ -25,9 +26,6 @@ class NullHandler(logging.Handler):
 
 logging.getLogger('dse_tinkerpop').addHandler(NullHandler())
 log = logging.getLogger(__name__)
-
-__version_info__ = (1, 0, '0a1')
-__version__ = '.'.join(map(str, __version_info__))
 
 
 def graph_traversal_row_factory(column_names, rows):
@@ -159,9 +157,11 @@ class DSETinkerPop(object):
 
     def execute_traversal_async(self, traversal, trace=False, execution_profile=None):
         """
-        Execute a TinkerPop GraphTraversal asynchronously and return a `ResponseFuture <http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.ResponseFuture.result>`_
+        Execute a TinkerPop GraphTraversal asynchronously and return a `ResponseFuture <http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.ResponseFuture>`_
         object which callbacks may be attached to for asynchronous response delivery. You may also call ``ResponseFuture.result()`` to synchronously block for
         results at any time.
+
+        :param traversal: A TinkerPop GraphTraversal
         """
 
         if not isinstance(traversal, GraphTraversal):
