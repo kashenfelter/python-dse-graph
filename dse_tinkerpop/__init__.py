@@ -22,7 +22,7 @@ from dse_tinkerpop._version import __version__, __version_info__
 
 class NullHandler(logging.Handler):
     def emit(self, record):
-            pass
+        pass
 
 logging.getLogger('dse_tinkerpop').addHandler(NullHandler())
 log = logging.getLogger(__name__)
