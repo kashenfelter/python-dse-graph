@@ -241,15 +241,18 @@ class InstantSerializer(GraphSONSerializer):
 
 
 class PointSerializer(StringSerializer):
-    pass
+    def _dictify(self, p):
+        return _SymbolHelper.objectify("Point", six.text_type(p), prefix='dse')
 
 
 class LineStringSerializer(StringSerializer):
-    pass
+    def _dictify(self, l):
+        return _SymbolHelper.objectify("LineString", six.text_type(l), prefix='dse')
 
 
 class PolygonSerializer(StringSerializer):
-    pass
+    def _dictify(self, p):
+        return _SymbolHelper.objectify("Polygon", six.text_type(p), prefix='dse')
 
 
 '''
