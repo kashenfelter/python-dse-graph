@@ -67,7 +67,7 @@ varint       | gx:BigInteger  | long
 polygon      | dse:Polygon    | Polygon
 point        | dse:Point      | Point
 linestring   | dse:LineString | LineString
-blob         | dse:Blob       | byte str
+blob         | dse:Blob       | bytearray, buffer (PY2), memoryview (PY3), bytes (PY3)
 """
 
 
@@ -397,12 +397,23 @@ serializers = {
     #BigInteger: NumberSerializer(),
     #Int16: NumberSerializer(),
     datetime: InstantSerializer(),
+    bytearray: BlobSerializer(),
 
     Point: PointSerializer(),
     LineString: LineStringSerializer(),
     Polygon: PolygonSerializer(),
 }
 
+
+if six.PY2:
+    serializers.update({
+        buffer: BlobSerializer(),
+    })
+else:
+    serializers.update({
+        memoryview: BlobSerializer(),
+        bytes: BlobSerializer(),
+    })
 
 deserializers = {
     "g:Traverser": TraverserDeserializer(),
