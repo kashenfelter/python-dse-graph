@@ -28,7 +28,7 @@ import datetime
 from abc import abstractmethod
 from decimal import Decimal
 from aenum import Enum
-from isodate import duration_isoformat, parse_duration, parse_datetime
+from isodate import duration_isoformat, parse_duration
 from types import FloatType
 from types import FunctionType
 from types import IntType
@@ -369,7 +369,12 @@ class UUIDDeserializer(GraphSONSerializer):
 class InstantDeserializer(GraphSONDeserializer):
     def _objectify(self, dict):
         value = dict[_SymbolHelper._VALUE]
-        return parse_datetime(value)
+        try:
+            d = datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%fZ')
+        except ValueError:
+            d = datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ')
+
+        return d
 
 
 class BlobDeserializer(GraphSONDeserializer):
