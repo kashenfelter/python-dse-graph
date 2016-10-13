@@ -272,6 +272,12 @@ class GraphSONDeserializer(object):
         return dict
 
 
+class StringDeserializer(GraphSONDeserializer):
+    def _objectify(self, dict):
+        value = dict[_SymbolHelper._VALUE]
+        return  six.text_type(value)
+
+
 class TraverserDeserializer(GraphSONDeserializer):
     def _objectify(self, dict):
         return Traverser(GraphSONReader._objectify(dict[_SymbolHelper._VALUE]["value"]),
@@ -445,6 +451,7 @@ deserializers = {
     "gx:Int16": NumberDeserializer(),
     "gx:Instant": InstantDeserializer(),
     "gx:Duration": DurationDeserializer(),
+    "gx:InetAddress": StringDeserializer(),
 
     "dse:Blob": BlobDeserializer(),
     "dse:Point": PointDeserializer(),
