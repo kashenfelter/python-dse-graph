@@ -23,10 +23,11 @@ import base64
 import json
 import six
 import uuid
-from datetime import datetime
+import datetime
 from abc import abstractmethod
 from decimal import Decimal
 from aenum import Enum
+from isodate import duration_isoformat, parse_duration
 from types import FloatType
 from types import FunctionType
 from types import IntType
@@ -59,7 +60,7 @@ double       | g:Double       | float
 float        | g:Float        | float
 uuid         | g:UUID         | UUID
 bigdecimal   | gx:BigDecimal  | Decimal
-duration     | gx:Duration    | str (unicode)
+duration     | gx:Duration    | timedelta
 inet         | gx:InetAddress | str (unicode)
 timestamp    | gx:Instant     | Datetime
 smallint     | gx:Int16       | int
@@ -237,7 +238,12 @@ class BlobSerializer(GraphSONSerializer):
 
 class InstantSerializer(GraphSONSerializer):
     def _dictify(self, d):
-        return d.isoformat()
+        return _SymbolHelper.objectify("Instant", d.isoformat(), prefix='gx')
+
+
+class DurationSerializer(GraphSONSerializer):
+    def _dictify(self, d):
+        return _SymbolHelper.objectify("Duration", duration_isoformat(d), prefix='gx')
 
 
 class PointSerializer(StringSerializer):
@@ -353,7 +359,7 @@ class UUIDDeserializer(GraphSONSerializer):
 class InstantDeserializer(GraphSONDeserializer):
     def _objectify(self, dict):
         value = dict[_SymbolHelper._VALUE]
-        return datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ')
+        return datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ')
 
 
 class BlobDeserializer(GraphSONDeserializer):
@@ -362,6 +368,10 @@ class BlobDeserializer(GraphSONDeserializer):
         decoded_value = base64.b64decode(value)
         return bytearray(decoded_value)
 
+class DurationDeserializer(GraphSONDeserializer):
+    def _objectify(self, dict):
+        value = dict[_SymbolHelper._VALUE]
+        return parse_duration(value)
 
 class PointDeserializer(GraphSONDeserializer):
     def _objectify(self, dict):
@@ -397,8 +407,9 @@ serializers = {
     Decimal: NumberSerializer(),
     #BigInteger: NumberSerializer(),
     #Int16: NumberSerializer(),
-    datetime: InstantSerializer(),
+    datetime.datetime: InstantSerializer(),
     bytearray: BlobSerializer(),
+    datetime.timedelta: DurationSerializer(),
 
     Point: PointSerializer(),
     LineString: LineStringSerializer(),
@@ -433,6 +444,7 @@ deserializers = {
     "gx:BigInteger":  NumberDeserializer(),
     "gx:Int16": NumberDeserializer(),
     "gx:Instant": InstantDeserializer(),
+    "gx:Duration": DurationDeserializer(),
 
     "dse:Blob": BlobDeserializer(),
     "dse:Point": PointDeserializer(),

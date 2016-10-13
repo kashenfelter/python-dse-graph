@@ -58,7 +58,7 @@ class DocCommand(Command):
         print("Documentation step '%s' performed, results here:" % mode)
         print("   file://%s/%s/index.html" % (os.path.dirname(os.path.realpath(__file__)), path))
 
-dependencies = ['cassandra-driver-dse>=1.0,<=1.1', 'gremlinpython>=3.2,<3.3', 'six>=1.6']
+dependencies = ['cassandra-driver-dse>=1.0,<=1.1', 'gremlinpython>=3.2,<3.3', 'six>=1.6', 'isodate>=0.5,<0.6']
 
 setup(
     name='dse-tinkerpop',
