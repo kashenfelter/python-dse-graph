@@ -359,7 +359,8 @@ class InstantDeserializer(GraphSONDeserializer):
 class BlobDeserializer(GraphSONDeserializer):
     def _objectify(self, dict):
         value = dict[_SymbolHelper._VALUE]
-        return base64.b64decode(value)
+        decoded_value = base64.b64decode(value)
+        return bytearray(decoded_value)
 
 
 class PointDeserializer(GraphSONDeserializer):
