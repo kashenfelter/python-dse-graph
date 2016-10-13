@@ -19,6 +19,7 @@ under the License.
 
 __author__ = 'Marko A. Rodriguez (http://markorodriguez.com)'
 
+import calendar
 import base64
 import json
 import six
@@ -27,7 +28,7 @@ import datetime
 from abc import abstractmethod
 from decimal import Decimal
 from aenum import Enum
-from isodate import duration_isoformat, parse_duration
+from isodate import duration_isoformat, parse_duration, parse_datetime
 from types import FloatType
 from types import FunctionType
 from types import IntType
@@ -238,7 +239,10 @@ class BlobSerializer(GraphSONSerializer):
 
 class InstantSerializer(GraphSONSerializer):
     def _dictify(self, d):
-        return _SymbolHelper.objectify("Instant", d.isoformat(), prefix='gx')
+        value = d.isoformat()
+        if 'Z' not in value and '+' not in value:
+            value += 'Z'
+        return _SymbolHelper.objectify("Instant", value, prefix='gx')
 
 
 class DurationSerializer(GraphSONSerializer):
@@ -365,7 +369,7 @@ class UUIDDeserializer(GraphSONSerializer):
 class InstantDeserializer(GraphSONDeserializer):
     def _objectify(self, dict):
         value = dict[_SymbolHelper._VALUE]
-        return datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ')
+        return parse_datetime(value)
 
 
 class BlobDeserializer(GraphSONDeserializer):
