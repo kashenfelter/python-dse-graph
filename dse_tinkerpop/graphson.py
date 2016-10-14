@@ -231,10 +231,9 @@ class StringSerializer(GraphSONSerializer):
         return six.text_type(s)
 
 
-# DSE Types
-class BlobSerializer(GraphSONSerializer):
-    def _dictify(self, b):
-        return base64.b64encode(b)
+class UUIDSerializer(GraphSONSerializer):
+    def _dictify(self, value):
+        return _SymbolHelper.objectify("UUID", six.text_type(value), prefix='g')
 
 
 class InstantSerializer(GraphSONSerializer):
@@ -251,6 +250,13 @@ class InstantSerializer(GraphSONSerializer):
 class DurationSerializer(GraphSONSerializer):
     def _dictify(self, d):
         return _SymbolHelper.objectify("Duration", duration_isoformat(d), prefix='gx')
+
+
+# DSE Types
+class BlobSerializer(GraphSONSerializer):
+    def _dictify(self, b):
+        value = base64.b64encode(b)
+        return _SymbolHelper.objectify("Blob", value, prefix='dse')
 
 
 class PointSerializer(StringSerializer):
@@ -282,7 +288,7 @@ class GraphSONDeserializer(object):
 class StringDeserializer(GraphSONDeserializer):
     def _objectify(self, dict):
         value = dict[_SymbolHelper._VALUE]
-        return  six.text_type(value)
+        return six.text_type(value)
 
 
 class TraverserDeserializer(GraphSONDeserializer):
@@ -421,7 +427,7 @@ serializers = {
     IntType: NumberSerializer(),
     FloatType: NumberSerializer(),
 
-    uuid.UUID: StringSerializer(),
+    uuid.UUID: UUIDSerializer(),
     Decimal: NumberSerializer(),
     #BigInteger: NumberSerializer(),
     #Int16: NumberSerializer(),
