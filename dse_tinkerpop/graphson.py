@@ -19,7 +19,6 @@ under the License.
 
 __author__ = 'Marko A. Rodriguez (http://markorodriguez.com)'
 
-from time import mktime
 import base64
 import json
 import six
@@ -239,7 +238,7 @@ class UUIDSerializer(GraphSONSerializer):
 class InstantSerializer(GraphSONSerializer):
     def _dictify(self, dt):
         if isinstance(dt, datetime.datetime):
-            dt = datetime.datetime.fromtimestamp(mktime(dt.utctimetuple()))
+            dt = datetime.datetime(*dt.utctimetuple()[:7])
         else:
             dt = datetime.datetime.combine(dt, datetime.datetime.min.time())
 
