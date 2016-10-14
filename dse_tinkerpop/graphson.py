@@ -19,7 +19,7 @@ under the License.
 
 __author__ = 'Marko A. Rodriguez (http://markorodriguez.com)'
 
-import calendar
+from time import mktime
 import base64
 import json
 import six
@@ -238,10 +238,9 @@ class BlobSerializer(GraphSONSerializer):
 
 
 class InstantSerializer(GraphSONSerializer):
-    def _dictify(self, d):
-        value = d.isoformat()
-        if 'Z' not in value and '+' not in value:
-            value += 'Z'
+    def _dictify(self, dt):
+        utc_dt = datetime.datetime.fromtimestamp(mktime(dt.utctimetuple()))
+        value = "{0}Z".format(utc_dt.isoformat())
         return _SymbolHelper.objectify("Instant", value, prefix='gx')
 
 
