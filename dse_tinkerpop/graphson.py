@@ -239,8 +239,12 @@ class BlobSerializer(GraphSONSerializer):
 
 class InstantSerializer(GraphSONSerializer):
     def _dictify(self, dt):
-        utc_dt = datetime.datetime.fromtimestamp(mktime(dt.utctimetuple()))
-        value = "{0}Z".format(utc_dt.isoformat())
+        if isinstance(dt, datetime.datetime):
+            dt = datetime.datetime.fromtimestamp(mktime(dt.utctimetuple()))
+        else:
+            dt = datetime.datetime.combine(dt, datetime.datetime.min.time())
+
+        value = "{0}Z".format(dt.isoformat())
         return _SymbolHelper.objectify("Instant", value, prefix='gx')
 
 
@@ -422,6 +426,7 @@ serializers = {
     #BigInteger: NumberSerializer(),
     #Int16: NumberSerializer(),
     datetime.datetime: InstantSerializer(),
+    datetime.date: InstantSerializer(),
     bytearray: BlobSerializer(),
     datetime.timedelta: DurationSerializer(),
 
