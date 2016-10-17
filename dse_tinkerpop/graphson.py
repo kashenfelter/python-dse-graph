@@ -20,20 +20,20 @@ under the License.
 __author__ = 'Marko A. Rodriguez (http://markorodriguez.com)'
 
 import base64
-import json
-import six
 import uuid
 import datetime
+
+import json
 from abc import abstractmethod
-from decimal import Decimal
 from aenum import Enum
+from decimal import Decimal
 from isodate import duration_isoformat, parse_duration
-from types import FloatType
-from types import FunctionType
-from types import IntType
-from types import LongType
+
+import six
 
 from gremlin_python import statics
+from gremlin_python.statics import (
+    FloatType, FunctionType, IntType, LongType, long)
 from gremlin_python.process.traversal import Binding
 from gremlin_python.process.traversal import Bytecode
 from gremlin_python.process.traversal import P
@@ -43,7 +43,7 @@ from gremlin_python.structure.graph import Edge
 from gremlin_python.structure.graph import Property
 from gremlin_python.structure.graph import Vertex
 from gremlin_python.structure.graph import VertexProperty
-#from gremlin_python.structure.graph import Path
+from gremlin_python.structure.graph import Path
 
 from dse.util import Point, LineString, Polygon
 
@@ -203,7 +203,7 @@ class LambdaSerializer(GraphSONSerializer):
             if not script.strip().startswith("lambda"):
                 script = "lambda " + script
                 dict["script"] = script
-            dict["arguments"] = eval(dict["script"]).func_code.co_argcount
+            dict["arguments"] = six.get_function_code(eval(dict["script"])).co_argcount
         else:
             dict["arguments"] = -1
         return _SymbolHelper.objectify("Lambda", dict)
@@ -220,7 +220,7 @@ class NumberSerializer(GraphSONSerializer):
         elif isinstance(number, float):
             return _SymbolHelper.objectify("Float", number)
         elif isinstance(number, Decimal):
-            return _SymbolHelper.objectify("BigDecimal", unicode(number), prefix='gx')
+            return _SymbolHelper.objectify("BigDecimal", six.text_type(number), prefix='gx')
         else:
             return number
 
@@ -300,9 +300,9 @@ class NumberDeserializer(GraphSONDeserializer):
     def _objectify(self, dict):
         type = dict[_SymbolHelper._TYPE]
         value = dict[_SymbolHelper._VALUE]
-        if type == "g:Int32" or type == "gx:Int16":
+        if type in ("g:Int32", "gx:Int16"):
             return int(value)
-        elif type == "g:Int64" or type == "gx:BigInteger":
+        elif type in ( "g:Int64", "gx:BigInteger"):
             return long(value)
         elif type == "gx:BigDecimal":
             return Decimal(value)
@@ -338,34 +338,16 @@ class PropertyDeserializer(GraphSONDeserializer):
         return Property(value["key"], GraphSONReader._objectify(value["value"]))
 
 
-# class PathDeserializer(GraphSONDeserializer):
-#     def _objectify(self, dict):
-#         import pdb;pdb.set_trace()
-#         value = dict[_SymbolHelper._VALUE]
-#         labels = []
-#         objects = []
-#         for label in value["labels"]:
-#             labels.append(set(label))
-#         for object in value["objects"]:
-#             objects.append(GraphSONReader._objectify(object))
-#         return Path(labels, objects)
-
-
-class _SymbolHelper(object):
-    symbolMap = {"global_": "global", "as_": "as", "in_": "in", "and_": "and",
-                 "or_": "or", "is_": "is", "not_": "not", "from_": "from",
-                 "set_": "set", "list_": "list", "all_": "all"}
-
-    _TYPE = "@type"
-    _VALUE = "@value"
-
-    @staticmethod
-    def toGremlin(symbol):
-        return _SymbolHelper.symbolMap[symbol] if symbol in _SymbolHelper.symbolMap else symbol
-
-    @staticmethod
-    def objectify(type, value, prefix="g"):
-        return {_SymbolHelper._TYPE: prefix + ":" + type, _SymbolHelper._VALUE: value}
+class PathDeserializer(GraphSONDeserializer):
+    def _objectify(self, dict):
+        value = dict[_SymbolHelper._VALUE]
+        labels = []
+        objects = []
+        for label in value["labels"]:
+            labels.append(set(label))
+        for object in value["objects"]:
+            objects.append(GraphSONReader._objectify(object))
+        return Path(labels, objects)
 
 
 class UUIDDeserializer(GraphSONSerializer):
@@ -414,6 +396,23 @@ class PolygonDeserializer(GraphSONDeserializer):
         return Polygon.from_wkt(value)
 
 
+class _SymbolHelper(object):
+    symbolMap = {"global_": "global", "as_": "as", "in_": "in", "and_": "and",
+                 "or_": "or", "is_": "is", "not_": "not", "from_": "from",
+                 "set_": "set", "list_": "list", "all_": "all"}
+
+    _TYPE = "@type"
+    _VALUE = "@value"
+
+    @staticmethod
+    def toGremlin(symbol):
+        return _SymbolHelper.symbolMap[symbol] if symbol in _SymbolHelper.symbolMap else symbol
+
+    @staticmethod
+    def objectify(type, value, prefix="g"):
+        return {_SymbolHelper._TYPE: prefix + ":" + type, _SymbolHelper._VALUE: value}
+
+
 serializers = {
     Traversal: BytecodeSerializer(),
     Traverser: TraverserSerializer(),
@@ -428,8 +427,6 @@ serializers = {
 
     uuid.UUID: UUIDSerializer(),
     Decimal: NumberSerializer(),
-    #BigInteger: NumberSerializer(),
-    #Int16: NumberSerializer(),
     datetime.datetime: InstantSerializer(),
     datetime.date: InstantSerializer(),
     bytearray: BlobSerializer(),
@@ -439,7 +436,6 @@ serializers = {
     LineString: LineStringSerializer(),
     Polygon: PolygonSerializer(),
 }
-
 
 if six.PY2:
     serializers.update({
@@ -451,6 +447,7 @@ else:
         bytes: BlobSerializer(),
     })
 
+
 deserializers = {
     "g:Traverser": TraverserDeserializer(),
     "g:Int32": NumberDeserializer(),
@@ -461,9 +458,9 @@ deserializers = {
     "g:Edge": EdgeDeserializer(),
     "g:VertexProperty": VertexPropertyDeserializer(),
     "g:Property": PropertyDeserializer(),
-    #"g:Path": PathDeserializer(),
-
+    "g:Path": PathDeserializer(),
     "g:UUID": UUIDDeserializer(),
+
     "gx:BigDecimal": NumberDeserializer(),
     "gx:BigInteger":  NumberDeserializer(),
     "gx:Int16": NumberDeserializer(),
