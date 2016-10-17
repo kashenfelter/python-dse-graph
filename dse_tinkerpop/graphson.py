@@ -339,15 +339,15 @@ class PropertyDeserializer(GraphSONDeserializer):
 
 
 class PathDeserializer(GraphSONDeserializer):
-    def _objectify(self, dict):
-        value = dict[_SymbolHelper._VALUE]
-        labels = []
-        objects = []
-        for label in value["labels"]:
-            labels.append(set(label))
-        for object in value["objects"]:
-            objects.append(GraphSONReader._objectify(object))
-        return Path(labels, objects)
+     def _objectify(self, dict):
+         value = dict[_SymbolHelper._VALUE]
+         labels = []
+         objects = []
+         for label in value["labels"]:
+             labels.append(set(label))
+         for object in value["objects"]:
+             objects.append(GraphSONReader._objectify(object))
+         return Path(labels, objects)
 
 
 class UUIDDeserializer(GraphSONSerializer):
@@ -459,8 +459,8 @@ deserializers = {
     "g:VertexProperty": VertexPropertyDeserializer(),
     "g:Property": PropertyDeserializer(),
     "g:Path": PathDeserializer(),
-    "g:UUID": UUIDDeserializer(),
 
+    "g:UUID": UUIDDeserializer(),
     "gx:BigDecimal": NumberDeserializer(),
     "gx:BigInteger":  NumberDeserializer(),
     "gx:Int16": NumberDeserializer(),
