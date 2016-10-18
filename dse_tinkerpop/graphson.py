@@ -47,6 +47,8 @@ from gremlin_python.structure.graph import Path
 
 from dse.util import Point, LineString, Polygon
 
+MAX_INT32 = 2**32-1
+
 """
 This file is temporary and will be removed. A refactor is required in gremlin_python.
 
@@ -211,6 +213,9 @@ class LambdaSerializer(GraphSONSerializer):
 
 class NumberSerializer(GraphSONSerializer):
     def _dictify(self, number):
+        if six.PY3 and type(number) in six.integer_types and number > MAX_INT32:
+            number = long(number)
+
         if isinstance(number, bool):  # python thinks that 0/1 integers are booleans
             return number
         elif isinstance(number, long):
@@ -305,7 +310,9 @@ class NumberDeserializer(GraphSONDeserializer):
         if type in ("g:Int32", "gx:Int16"):
             return int(value)
         elif type in ( "g:Int64", "gx:BigInteger"):
-            return long(value)
+            if six.PY2:
+                return long(value)
+            return int(value)
         elif type == "gx:BigDecimal":
             return Decimal(value)
         else:
