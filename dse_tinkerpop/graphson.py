@@ -255,6 +255,8 @@ class DurationSerializer(GraphSONSerializer):
 class BlobSerializer(GraphSONSerializer):
     def _dictify(self, b):
         value = base64.b64encode(b)
+        if six.PY3:
+            value = value.decode('utf-8')
         return _SymbolHelper.objectify("Blob", value, prefix='dse')
 
 
@@ -436,6 +438,7 @@ serializers = {
     LineString: LineStringSerializer(),
     Polygon: PolygonSerializer(),
 }
+
 
 if six.PY2:
     serializers.update({
