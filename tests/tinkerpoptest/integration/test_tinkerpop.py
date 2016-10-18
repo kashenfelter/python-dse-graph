@@ -7,7 +7,7 @@
 #
 # http://www.datastax.com/terms/datastax-dse-driver-license-terms
 
-
+import sys
 from dse_tinkerpop import DSETinkerPop
 from unittest import skip
 from dsetest.integration import BasicGraphUnitTestCase, use_single_node_with_graph, generate_classic, generate_line_graph, generate_multi_field_graph, generate_large_complex_graph, generate_type_graph_schema
@@ -333,8 +333,12 @@ class AbstractTraversalTest():
             value =  prop.value
             if any(prop.key.startswith(t) for t in ('int', 'short')):
                 typ = int
+
             elif any(prop.key.startswith(t) for t in ('long')):
-                typ = long
+                if sys.version_info >= (3, 0):
+                    typ = int
+                else:
+                    typ = long
             elif any(prop.key.startswith(t) for t in ('float', 'double')):
                 typ = float
             elif any(prop.key.startswith(t) for t in ('polygon')):
