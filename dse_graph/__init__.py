@@ -16,15 +16,15 @@ from gremlin_python.process.traversal import Traverser, TraversalSideEffects
 
 from dse.cluster import Session, GraphExecutionProfile, EXEC_PROFILE_GRAPH_DEFAULT
 
-from dse_tinkerpop.graphson import GraphSONReader, GraphSONWriter
-from dse_tinkerpop._version import __version__, __version_info__
+from dse_graph.graphson import GraphSONReader, GraphSONWriter
+from dse_graph._version import __version__, __version_info__
 
 
 class NullHandler(logging.Handler):
     def emit(self, record):
         pass
 
-logging.getLogger('dse_tinkerpop').addHandler(NullHandler())
+logging.getLogger('dse_graph').addHandler(NullHandler())
 log = logging.getLogger(__name__)
 
 
@@ -76,7 +76,7 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
 
     def submit(self, bytecode):
 
-        query = DSETinkerPop.prepare_traversal_query(bytecode)
+        query = DseGraph.prepare_traversal_query(bytecode)
 
         execution_profile = _get_traversal_execution_profile(
             self.session, self.execution_profile, self.graph_name, row_factory=graph_traversal_traverser_row_factory)
@@ -89,9 +89,9 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
     __repr__ = __str__
 
 
-class DSETinkerPop(object):
+class DseGraph(object):
     """
-    DSE TinkerPop utility class for GraphTraversal construction and execution.
+    Dse Graph utility class for GraphTraversal construction and execution.
 
     :param session: A DSE session
     :param graph_name: (Optional) DSE Graph name
@@ -129,17 +129,17 @@ class DSETinkerPop(object):
 
     def graph_traversal_source(self):
         """
-        Returns a TinkerPop GraphTraversalSource binded to the DSETinkerPop instance session.
+        Returns a TinkerPop GraphTraversalSource binded to the DseGraph instance session.
 
         .. code-block:: python
 
             from dse.cluster import Cluster
-            from dse_tinkerpop import DSETinkerPop
+            from dse_graph import DseGraph
 
             c = Cluster()
             session = c.connect()
 
-            g = DSETinkerPop(session, 'my_graph').graph_traversal_source()
+            g = DseGraph(session, 'my_graph').graph_traversal_source()
             print g.V().valueMap().toList():
 
         """
@@ -175,5 +175,5 @@ class DSETinkerPop(object):
         return self.session.execute_graph_async(query, trace=trace, execution_profile=ep)
 
     def __str__(self):
-        return "<DSETinkerPop: graph_name='{0}'>".format(self.graph_name)
+        return "<DseGraph: graph_name='{0}'>".format(self.graph_name)
     __repr__ = __str__

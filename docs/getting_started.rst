@@ -14,7 +14,7 @@ need to change the default properties, please refer to this documentation page: 
 Graph Traversal Queries via TinkerPop (Implicit Execution)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Using the :class:`dse_tinkerpop.DSETinkerPop` class, you can build a GraphTraversalSource
+Using the :class:`dse_tinkerpop.DseGraph` class, you can build a GraphTraversalSource
 that will execute queries on a DSE session. We call this *implicit execution* because it
 doesn't rely on any particular function to execute the query. Everything
 is managed internally by TinkerPop while traversing the graph.
@@ -24,33 +24,33 @@ For example:
 .. code-block:: python
 
     from dse.cluster import Cluster
-    from dse_tinkerpop import DSETinkerPop
+    from dse_tinkerpop import DseGraph
 
     cluster = Cluster()
     session = cluster.connect()
 
-    dtk = DSETinkerPop(session, 'a_graph_name')
+    dtk = DseGraph(session, 'a_graph_name')
     g = dtk.graph_traversal_source()  # Build the GraphTraversalSource
     print g.V().toList()  # Traverse the Graph
 
 
-Graph Traversal Queries via DSETinkerPop (Explicit Execution)
+Graph Traversal Queries via DseGraph (Explicit Execution)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Traversal queries can also be executed explicitly using :meth:`dse_tinkerpop.DSETinkerPop.execute_traversal` or
-:meth:`dse_tinkerpop.DSETinkerPop.execute_traversal_async`. If you are familiar to DSE queries and ResulSet or need
+Traversal queries can also be executed explicitly using :meth:`dse_tinkerpop.DseGraph.execute_traversal` or
+:meth:`dse_tinkerpop.DseGraph.execute_traversal_async`. If you are familiar to DSE queries and ResulSet or need
 async execution, you might prefer that way.
 
 
 .. code-block:: python
 
     from dse.cluster import Cluster
-    from dse_tinkerpop import DSETinkerPop
+    from dse_tinkerpop import DseGraph
 
     cluster = Cluster()
     session = cluster.connect()
 
-    dtk = DSETinkerPop(session, 'a_graph_name')
+    dtk = DseGraph(session, 'a_graph_name')
     g = dtk.graph_traversal_source()  # Build the GraphTraversalSource
     for v in dtk.execute_traversal(g.V()):  # Execute a GraphTraversal and print results
         print v

@@ -11,7 +11,7 @@
 
    The version of the driver extension in a string format
 
-.. autoclass:: DSETinkerPop (session, graph_name[, execution_profile])
+.. autoclass:: DseGraph (session, graph_name[, execution_profile])
 
    .. automethod:: prepare_traversal_query
 

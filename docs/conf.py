@@ -25,7 +25,7 @@ import sys
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('..'))
-exec(open('../dse_tinkerpop/_version.py').read())
+exec(open('../dse_graph/_version.py').read())
 
 
 # -- General configuration -----------------------------------------------------

@@ -15,7 +15,7 @@ ez_setup.use_setuptools()
 from setuptools import setup
 from distutils.cmd import Command
 
-exec(open('dse_tinkerpop/_version.py').read())
+exec(open('dse_graph/_version.py').read())
 
 long_description = ""
 with open("README.rst") as f:
@@ -65,7 +65,7 @@ setup(
     version=__version__,
     description='DataStax Enterprise extension for TinkerPop',
     long_description=long_description,
-    packages=["dse_tinkerpop"],
+    packages=["dse_graph"],
     keywords='cassandra,dse,graph,tinkerpop',
     include_package_data=True,
     install_requires=dependencies,
