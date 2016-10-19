@@ -92,24 +92,7 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
 class DseGraph(object):
     """
     Dse Graph utility class for GraphTraversal construction and execution.
-
-    :param session: A DSE session
-    :param graph_name: (Optional) DSE Graph name
-    :param execution_profile: (Optional) Execution profile name for traversal queries.
     """
-
-    session = None
-    graph_name = None
-    execution_profile = None
-
-    def __init__(self, session, graph_name, execution_profile=EXEC_PROFILE_GRAPH_DEFAULT):
-
-        if not isinstance(session, Session):
-            raise ValueError('A DSE Session must be provided to execute graph traversal queries.')
-
-        self.session = session
-        self.graph_name = graph_name
-        self.execution_profile = execution_profile
 
     @staticmethod
     def prepare_traversal_query(traversal):
@@ -127,9 +110,14 @@ class DseGraph(object):
 
         return query
 
-    def graph_traversal_source(self):
+    @staticmethod
+    def traversal_source(session=None, graph_name=None, execution_profile=EXEC_PROFILE_GRAPH_DEFAULT):
         """
-        Returns a TinkerPop GraphTraversalSource binded to the DseGraph instance session.
+        Returns a TinkerPop GraphTraversalSource binded to the session and graph_name if provided.
+
+        :param session: A DSE session
+        :param graph_name: (Optional) DSE Graph name
+        :param execution_profile: (Optional) Execution profile name for traversal queries.
 
         .. code-block:: python
 
@@ -139,13 +127,19 @@ class DseGraph(object):
             c = Cluster()
             session = c.connect()
 
-            g = DseGraph(session, 'my_graph').graph_traversal_source()
+            g = DseGraph.traversal_source(session, 'my_graph')
             print g.V().valueMap().toList():
 
         """
+
         graph = Graph()
-        return graph.traversal().withRemote(
-            DSESessionRemoteGraphConnection(self.session, self.graph_name, self.execution_profile))
+        traversal_source = graph.traversal()
+
+        if session:
+            traversal_source = traversal_source.withRemote(
+                DSESessionRemoteGraphConnection(session, graph_name, execution_profile))
+
+        return traversal_source
 
     def execute_traversal(self, traversal, trace=False, execution_profile=None):
         """

@@ -27,7 +27,7 @@ class AbstractTraversalTest():
 
     def test_basic_query(self):
         generate_classic(self.session)
-        g = DseGraph(self.session, self.graph_name).graph_traversal_source()
+        g = DseGraph(self.session, self.graph_name).traversal_source()
         traversal =g.V().has('name', 'marko').out('knows').values('name')
         results_list = self.execute_traversal(g, traversal)
         self.assertEqual(len(results_list), 2)
@@ -50,7 +50,7 @@ class AbstractTraversalTest():
         @test_category dse graph
         """
         generate_classic(self.session)
-        g = DseGraph(self.session, self.graph_name).graph_traversal_source()
+        g = DseGraph(self.session, self.graph_name).traversal_source()
         traversal =  g.V()
         vert_list = self.execute_traversal(g, traversal)
         for vertex in vert_list:
@@ -70,7 +70,7 @@ class AbstractTraversalTest():
         @test_category dse graph
         """
         generate_classic(self.session)
-        g = DseGraph(self.session, self.graph_name).graph_traversal_source()
+        g = DseGraph(self.session, self.graph_name).traversal_source()
         traversal = g.V().hasLabel('person').has('name', 'marko').as_('a').outE('knows').inV().as_('c', 'd').outE('created').as_('e', 'f', 'g').inV().path()
         path_list = self.execute_traversal(g, traversal)
         self.assertEqual(len(path_list), 2)
@@ -96,7 +96,7 @@ class AbstractTraversalTest():
         query_to_run = generate_line_graph(250)
         self.session.execute_graph(query_to_run)
 
-        g = DseGraph(self.session, self.graph_name).graph_traversal_source()
+        g = DseGraph(self.session, self.graph_name).traversal_source()
 
         traversal = g.E().range(0,10)
         edges = self.execute_traversal(g, traversal)
@@ -114,7 +114,7 @@ class AbstractTraversalTest():
         @test_category dse graph
         """
         generate_multi_field_graph(self.session)  # TODO: we could just make a single vertex with properties of all types, or even a simple query that just uses a sequence of groovy expressions
-        g = DseGraph(self.session, self.graph_name).graph_traversal_source()
+        g = DseGraph(self.session, self.graph_name).traversal_source()
         traversal = g.V()
         vertices = self.execute_traversal(g, traversal)
         for vertex in vertices:
@@ -133,7 +133,7 @@ class AbstractTraversalTest():
         @test_category dse graph
         """
         generate_large_complex_graph(self.session, 5000)
-        g = DseGraph(self.session, self.graph_name).graph_traversal_source()
+        g = DseGraph(self.session, self.graph_name).traversal_source()
         traversal = g.V()
         vertices = self.execute_traversal(g, traversal)
         for vertex in vertices:
@@ -159,7 +159,7 @@ class AbstractTraversalTest():
                                  v.property('key', 'meta_prop', 'k0', 'v0', 'k1', 'v1')
                                  v''')[0]
 
-        g = DseGraph(self.session, self.graph_name).graph_traversal_source()
+        g = DseGraph(self.session, self.graph_name).traversal_source()
         vertex_prop= g.V(v.id).properties().toList()[0]
         # This should contain key, and value where value is a property
         # This should be a vertex property and should contain sub properties
@@ -190,7 +190,7 @@ class AbstractTraversalTest():
         v = s.execute_graph('''v = graph.addVertex('MPW1')
                                  v.property('mult_key', 'value')
                                  v''')[0]
-        g = DseGraph(self.session, self.graph_name).graph_traversal_source()
+        g = DseGraph(self.session, self.graph_name).traversal_source()
         traversal = g.V(v.id).properties()
 
         vertex_props = self.execute_traversal(g, traversal)
@@ -238,7 +238,7 @@ class AbstractTraversalTest():
 
         generate_type_graph_schema(self.session)
         # if result set is not parsed correctly this will throw an exception
-        g = DseGraph(self.session, self.graph_name).graph_traversal_source()
+        g = DseGraph(self.session, self.graph_name).traversal_source()
         for key in TYPE_MAP.keys():
             vertex_label = key
             property_name= key+"value"
@@ -267,7 +267,7 @@ class AbstractTraversalTest():
 
         generate_type_graph_schema(self.session, prime_schema=False)
         # if result set is not parsed correctly this will throw an exception
-        g = DseGraph(self.session, self.graph_name).graph_traversal_source()
+        g = DseGraph(self.session, self.graph_name).traversal_source()
         for key in TYPE_MAP.keys():
             vertex_label = key
             property_name= key+"value"
