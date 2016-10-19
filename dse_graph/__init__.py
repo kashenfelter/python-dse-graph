@@ -11,10 +11,10 @@ import logging
 
 from gremlin_python.structure.graph import Graph
 from gremlin_python.driver.remote_connection import RemoteConnection, RemoteTraversal
-from gremlin_python.process.graph_traversal import GraphTraversal
 from gremlin_python.process.traversal import Traverser, TraversalSideEffects
 
-from dse.cluster import Session, GraphExecutionProfile, EXEC_PROFILE_GRAPH_DEFAULT
+from dse.cluster import Session, GraphExecutionProfile
+from dse.graph import GraphOptions
 
 from dse_graph.graphson import GraphSONReader, GraphSONWriter
 from dse_graph._version import __version__, __version_info__
@@ -35,22 +35,6 @@ def graph_traversal_row_factory(column_names, rows):
     return [GraphSONReader.readObject(row[0])['result'] for row in rows]
 
 
-def graph_traversal_traverser_row_factory(column_names, rows):
-    """
-    Row Factory that returns the decoded graphson as Traversers.
-    """
-    return [Traverser(GraphSONReader.readObject(row[0])['result']) for row in rows]
-
-
-def _get_traversal_execution_profile(session, execution_profile, graph_name, row_factory=graph_traversal_row_factory):
-    ep = session.execution_profile_clone_update(execution_profile, row_factory=row_factory)
-    graph_options = ep.graph_options.copy()
-    graph_options.graph_language='bytecode-json'
-    graph_options.graph_name = graph_name
-    ep.graph_options = graph_options
-    return ep
-
-
 class DSESessionRemoteGraphConnection(RemoteConnection):
     """
     A TinkerPop RemoteConnection to execute traversal queries on DSE.
@@ -64,7 +48,7 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
     graph_name = None
     execution_profile = None
 
-    def __init__(self, session, graph_name, execution_profile=EXEC_PROFILE_GRAPH_DEFAULT):
+    def __init__(self, session, graph_name, execution_profile):
         super(DSESessionRemoteGraphConnection, self).__init__(None, None)
 
         if not isinstance(session, Session):
@@ -78,10 +62,8 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
 
         query = DseGraph.query_from_traversal(bytecode)
 
-        execution_profile = _get_traversal_execution_profile(
-            self.session, self.execution_profile, self.graph_name, row_factory=graph_traversal_traverser_row_factory)
-
-        traversers = self.session.execute_graph(query, execution_profile=execution_profile)
+        traversers = self.session.execute_graph(query, execution_profile=self.execution_profile)
+        traversers = [Traverser(t) for t in traversers]
         return RemoteTraversal(iter(traversers), TraversalSideEffects())
 
     def __str__(self):
@@ -96,7 +78,7 @@ class DseGraph(object):
 
     DSE_GRAPH_QUERY_LANGUAGE = 'bytecode-json'
     """
-    Default graph query language: bytecode-json (GraphSON).
+    Graph query language, Default is 'bytecode-json' (GraphSON).
     """
 
     @staticmethod
@@ -120,7 +102,7 @@ class DseGraph(object):
         return query
 
     @staticmethod
-    def traversal_source(session=None, graph_name=None, execution_profile=EXEC_PROFILE_GRAPH_DEFAULT):
+    def traversal_source(session=None, graph_name=None, execution_profile=None):
         """
         Returns a TinkerPop GraphTraversalSource binded to the session and graph_name if provided.
 
@@ -150,33 +132,14 @@ class DseGraph(object):
 
         return traversal_source
 
-    def execute_traversal(self, traversal, trace=False, execution_profile=None):
+    @staticmethod
+    def create_execution_profile(graph_name):
         """
-        Execute a TinkerPop GraphTraversal synchronously.
-
-        :param traversal: A TinkerPop GraphTraversal
-        """
-        return self.execute_traversal_async(traversal, trace=trace, execution_profile=execution_profile).result()
-
-    def execute_traversal_async(self, traversal, trace=False, execution_profile=None):
-        """
-        Execute a TinkerPop GraphTraversal asynchronously and return a `ResponseFuture <http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.ResponseFuture>`_
-        object which callbacks may be attached to for asynchronous response delivery. You may also call ``ResponseFuture.result()`` to synchronously block for
-        results at any time.
-
-        :param traversal: A TinkerPop GraphTraversal
+        Creates an ExecutionProfile for GraphTraversal execution.
+        :param graph_name: The graph name
         """
 
-        if not isinstance(traversal, GraphTraversal):
-            raise TypeError('traversal must be an instance of GraphTraversal.')
-
-        query = self.query_from_traversal(traversal)
-
-        ep = execution_profile or self.execution_profile
-        ep = _get_traversal_execution_profile(self.session, ep, self.graph_name)
-
-        return self.session.execute_graph_async(query, trace=trace, execution_profile=ep)
-
-    def __str__(self):
-        return "<DseGraph: graph_name='{0}'>".format(self.graph_name)
-    __repr__ = __str__
+        ep = GraphExecutionProfile(row_factory=graph_traversal_row_factory,
+                                   graph_options=GraphOptions(graph_name=graph_name,
+                                                              graph_language=DseGraph.DSE_GRAPH_QUERY_LANGUAGE))
+        return ep
