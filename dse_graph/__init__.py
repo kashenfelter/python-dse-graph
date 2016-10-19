@@ -76,7 +76,7 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
 
     def submit(self, bytecode):
 
-        query = DseGraph.prepare_traversal_query(bytecode)
+        query = DseGraph.query_from_traversal(bytecode)
 
         execution_profile = _get_traversal_execution_profile(
             self.session, self.execution_profile, self.graph_name, row_factory=graph_traversal_traverser_row_factory)
@@ -94,19 +94,28 @@ class DseGraph(object):
     Dse Graph utility class for GraphTraversal construction and execution.
     """
 
+    DSE_GRAPH_QUERY_LANGUAGE = 'bytecode-json'
+    """
+    Default graph query language: bytecode-json (GraphSON).
+    """
+
     @staticmethod
-    def prepare_traversal_query(traversal):
+    def query_from_traversal(traversal):
         """
-        Prepare and return a query string (GraphSON) generated with a traversal.
+        From a GraphTraversal, return a query string based on the language specified in `DseGraph.DSE_GRAPH_QUERY_LANGUAGE`.
 
         :param traversal: The GraphTraversal object
         """
 
-        try:
-            query = GraphSONWriter.writeObject(traversal)
-        except Exception as e:
-            log.exception("Error preparing graphson traversal query:")
-            raise
+        language = DseGraph.DSE_GRAPH_QUERY_LANGUAGE
+        if language == 'bytecode-json':
+            try:
+                query = GraphSONWriter.writeObject(traversal)
+            except Exception as e:
+                log.exception("Error preparing graphson traversal query:")
+                raise
+        else:
+            raise NotImplementedError("Query language '{0}' is not implemented".format(DseGraph.DSE_GRAPH_QUERY_LANGUAGE))
 
         return query
 
@@ -161,7 +170,7 @@ class DseGraph(object):
         if not isinstance(traversal, GraphTraversal):
             raise TypeError('traversal must be an instance of GraphTraversal.')
 
-        query = self.prepare_traversal_query(traversal)
+        query = self.query_from_traversal(traversal)
 
         ep = execution_profile or self.execution_profile
         ep = _get_traversal_execution_profile(self.session, ep, self.graph_name)

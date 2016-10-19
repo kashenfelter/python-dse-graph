@@ -13,7 +13,7 @@
 
 .. autoclass:: DseGraph (session, graph_name[, execution_profile])
 
-   .. automethod:: prepare_traversal_query
+   .. automethod:: query_from_traversal
 
    .. automethod:: graph_traversal_source
 
