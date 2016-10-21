@@ -48,7 +48,8 @@ from gremlin_python.structure.graph import Path
 from dse.graph import (
     Vertex as DseVertex,
     VertexProperty as DseVertexProperty,
-    Edge as DseEdge
+    Edge as DseEdge,
+    Path as DsePath
 )
 from dse.util import Point, LineString, Polygon
 
@@ -449,7 +450,7 @@ class DseVertexDeserializer(GraphSONDeserializer):
 class DseVertexPropertyDeserializer(GraphSONDeserializer):
     def _objectify(self, dict):
         value = dict[_SymbolHelper._VALUE]
-        return DseVertexProperty(DseGraphSONReader._objectify(value["id"]), DseGraphSONReader._objectify(value["value"]))
+        return DseVertexProperty(DseGraphSONReader._objectify(value["value"]), DseGraphSONReader._objectify(value.get('properties', {})))
 
 
 class DseEdgeDeserializer(GraphSONDeserializer):
@@ -468,6 +469,20 @@ class DsePropertyDeserializer(GraphSONDeserializer):
     def _objectify(self, dict):
         value = dict[_SymbolHelper._VALUE]
         return {value["key"], DseGraphSONReader._objectify(value["value"])}
+
+
+class DsePathDeserializer(GraphSONDeserializer):
+     def _objectify(self, dict):
+         value = dict[_SymbolHelper._VALUE]
+         labels = []
+         objects = []
+         for label in value["labels"]:
+             labels.append(set(label))
+         for object in value["objects"]:
+             objects.append(DseGraphSONReader._objectify(object))
+         p = DsePath(labels, [])
+         p.objects = objects
+         return p
 
 
 class _SymbolHelper(object):
@@ -556,4 +571,5 @@ dse_deserializers.update({
     'g:VertexProperty': DseVertexPropertyDeserializer(),
     'g:Edge': DseEdgeDeserializer(),
     'g:Property': DsePropertyDeserializer(),
+    'g:Path': DsePathDeserializer(),
 })
