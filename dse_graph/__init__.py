@@ -16,7 +16,7 @@ from gremlin_python.process.traversal import Traverser, TraversalSideEffects
 from dse.cluster import Session, GraphExecutionProfile
 from dse.graph import GraphOptions
 
-from dse_graph.graphson import GraphSONReader, GraphSONWriter
+from dse_graph.graphson import GraphSONReader, GraphSONWriter, DseGraphSONReader
 from dse_graph._version import __version__, __version_info__
 
 
@@ -33,6 +33,13 @@ def graph_traversal_row_factory(column_names, rows):
     Row Factory that returns the decoded graphson.
     """
     return [GraphSONReader.readObject(row[0])['result'] for row in rows]
+
+
+def graph_traversal_dse_object_row_factory(column_names, rows):
+    """
+    Row Factory that returns the decoded graphson as DSE types.
+    """
+    return [DseGraphSONReader.readObject(row[0])['result'] for row in rows]
 
 
 class DSESessionRemoteGraphConnection(RemoteConnection):
@@ -139,7 +146,7 @@ class DseGraph(object):
         :param graph_name: The graph name
         """
 
-        ep = GraphExecutionProfile(row_factory=graph_traversal_row_factory,
+        ep = GraphExecutionProfile(row_factory=graph_traversal_dse_object_row_factory,
                                    graph_options=GraphOptions(graph_name=graph_name,
                                                               graph_language=DseGraph.DSE_GRAPH_QUERY_LANGUAGE))
         return ep

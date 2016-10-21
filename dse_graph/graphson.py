@@ -45,6 +45,11 @@ from gremlin_python.structure.graph import Vertex
 from gremlin_python.structure.graph import VertexProperty
 from gremlin_python.structure.graph import Path
 
+from dse.graph import (
+    Vertex as DseVertex,
+    VertexProperty as DseVertexProperty,
+    Edge as DseEdge
+)
 from dse.util import Point, LineString, Polygon
 
 MAX_INT32 = 2**32-1
@@ -123,6 +128,33 @@ class GraphSONReader(object):
     @staticmethod
     def readObject(jsonData):
         return GraphSONReader._objectify(json.loads(jsonData))
+
+
+# This will be refactored with the latest gremlin API.
+class DseGraphSONReader(object):
+    @staticmethod
+    def _objectify(object):
+        if isinstance(object, dict):
+            if _SymbolHelper._TYPE in object:
+                type = object[_SymbolHelper._TYPE]
+                if type in dse_deserializers:
+                    return dse_deserializers[type]._objectify(object)
+                    # list and map are treated as normal json objects (could be isolated deserializers)
+            newDict = {}
+            for key in object:
+                newDict[DseGraphSONReader._objectify(key)] = DseGraphSONReader._objectify(object[key])
+            return newDict
+        elif isinstance(object, list):
+            newList = []
+            for item in object:
+                newList.append(DseGraphSONReader._objectify(item))
+            return newList
+        else:
+            return object
+
+    @staticmethod
+    def readObject(jsonData):
+        return DseGraphSONReader._objectify(json.loads(jsonData))
 
 
 '''
@@ -382,6 +414,7 @@ class BlobDeserializer(GraphSONDeserializer):
         decoded_value = base64.b64decode(value)
         return bytearray(decoded_value)
 
+
 class DurationDeserializer(GraphSONDeserializer):
     def _objectify(self, dict):
         value = dict[_SymbolHelper._VALUE]
@@ -403,6 +436,38 @@ class PolygonDeserializer(GraphSONDeserializer):
     def _objectify(self, dict):
         value = dict[_SymbolHelper._VALUE]
         return Polygon.from_wkt(value)
+
+
+class DseVertexDeserializer(GraphSONDeserializer):
+    def _objectify(self, dict):
+        value = dict[_SymbolHelper._VALUE]
+        v = DseVertex(DseGraphSONReader._objectify(value["id"]), value["label"] if "label" in value else "vertex", 'vertex', {})
+        v.properties = DseGraphSONReader._objectify(value.get('properties', {}))
+        return v
+
+
+class DseVertexPropertyDeserializer(GraphSONDeserializer):
+    def _objectify(self, dict):
+        value = dict[_SymbolHelper._VALUE]
+        return DseVertexProperty(DseGraphSONReader._objectify(value["id"]), DseGraphSONReader._objectify(value["value"]))
+
+
+class DseEdgeDeserializer(GraphSONDeserializer):
+    def _objectify(self, dict):
+        value = dict[_SymbolHelper._VALUE]
+        return DseEdge(
+            DseGraphSONReader._objectify(value["id"]),
+            value["label"] if "label" in value else "vertex",
+            'edge', DseGraphSONReader._objectify(value.get("properties", {})),
+            DseVertex(DseGraphSONReader._objectify(value["inV"]), value['inVLabel'], 'vertex', {}), value['inVLabel'],
+            DseVertex(DseGraphSONReader._objectify(value["outV"]), value['outVLabel'], 'vertex', {}), value['outVLabel']
+        )
+
+
+class DsePropertyDeserializer(GraphSONDeserializer):
+    def _objectify(self, dict):
+        value = dict[_SymbolHelper._VALUE]
+        return {value["key"], DseGraphSONReader._objectify(value["value"])}
 
 
 class _SymbolHelper(object):
@@ -483,3 +548,12 @@ deserializers = {
     "dse:LineString": LineStringDeserializer(),
     "dse:Polygon": PolygonDeserializer()
 }
+
+dse_deserializers = deserializers.copy()
+
+dse_deserializers.update({
+    'g:Vertex': DseVertexDeserializer(),
+    'g:VertexProperty': DseVertexPropertyDeserializer(),
+    'g:Edge': DseEdgeDeserializer(),
+    'g:Property': DsePropertyDeserializer(),
+})
