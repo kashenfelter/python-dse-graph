@@ -68,8 +68,9 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
     def submit(self, bytecode):
 
         query = DseGraph.query_from_traversal(bytecode)
+        ep = self.session.execution_profile_clone_update(self.execution_profile, row_factory=graph_traversal_row_factory)
 
-        traversers = self.session.execute_graph(query, execution_profile=self.execution_profile)
+        traversers = self.session.execute_graph(query, execution_profile=ep)
         traversers = [Traverser(t) for t in traversers]
         return RemoteTraversal(iter(traversers), TraversalSideEffects())
 
