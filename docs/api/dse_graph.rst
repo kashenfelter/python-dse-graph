@@ -1,7 +1,7 @@
-:mod:`dse_tinkerpop` - Version Info
+:mod:`dse_graph` - Version Info
 ===================================
 
-.. module:: dse_tinkerpop
+.. module:: dse_graph
 
 .. data:: __version_info__
 
@@ -11,14 +11,11 @@
 
    The version of the driver extension in a string format
 
-.. autoclass:: DseGraph (session, graph_name[, execution_profile])
+.. autoclass:: DseGraph
 
    .. automethod:: query_from_traversal
 
-   .. automethod:: graph_traversal_source
+   .. automethod:: traversal_source
 
-   .. automethod:: execute_traversal(traversal[, trace=False][, execution_profile])
 
-   .. automethod:: execute_traversal_async(traversal[, trace=False][, execution_profile])
-
-.. autoclass:: DSESessionRemoteGraphConnection (session, graph_name[, execution_profile])
+.. autoclass:: DSESessionRemoteGraphConnection (session[, graph_name, execution_profile])

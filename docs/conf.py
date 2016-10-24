@@ -50,7 +50,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'DataStax Enterprise Python Driver TinkerPop Extension'
+project = u'DataStax Enterprise Python Graph Extension'
 copyright = u'2016, DataStax'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -177,7 +177,7 @@ html_use_index = False
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'DSEDriverTinkerPopExtensiondoc'
+htmlhelp_basename = 'DSEGraphpExtensiondoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -191,7 +191,7 @@ htmlhelp_basename = 'DSEDriverTinkerPopExtensiondoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'dse-tinkerpop.tex', u'DSE Driver TinkerPop Extension Documentation', u'DataStax', 'manual'),
+    ('index', 'dse-graph.tex', u'DSE Graph Extension Documentation', u'DataStax', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -223,6 +223,6 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'dse-tinkerpop', u'DSE Driver TinkerPop Extension Documentation',
+    ('index', 'dse-graph', u'DSE Driver Graph Extension Documentation',
      [u'Alan Boudreault', u'Adam Holmberg'], 1)
 ]

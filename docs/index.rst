@@ -1,11 +1,11 @@
-DataStax Enterprise Python Driver TinkerPop Extension
-=====================================================
-This is the documentation for the DataStax Enterprise Python Driver TinkerPop Extension for DSE. This
+DataStax Enterprise Python GraphExtension
+=========================================
+This is the documentation for the DataStax Enterprise Python Graph Extension for DSE. This
 extension is built on top of the `DataStax Enterprise Python driver <http://docs.datastax.com/en/developer/python-driver-dse>`_
-and adds the ability to execute TinkerPop graph traversals on DSE. Here are the main features of the extension:
+and adds graph features, like executing TinkerPop traversals on DSE. Here are the main features of the extension:
 
 * A TinkerPop GraphTraversalSource builder to execute traversals on DSE
-* The ability to execution traversal queries explicitly, such all other DSE requests work
+* The ability to execution traversal queries explicitly, like other DSE requests work
 * GraphSON serializers for DSE Graph types.
 
 Contents
