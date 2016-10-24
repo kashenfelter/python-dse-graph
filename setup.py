@@ -61,9 +61,9 @@ class DocCommand(Command):
 dependencies = ['cassandra-driver-dse>=1.0,<=1.1', 'gremlinpython>=3.2,<3.3', 'six>=1.6', 'isodate>=0.5,<0.6']
 
 setup(
-    name='dse-tinkerpop',
+    name='dse-graph',
     version=__version__,
-    description='DataStax Enterprise extension for TinkerPop',
+    description='DataStax Enterprise extension for graph',
     long_description=long_description,
     packages=["dse_graph"],
     keywords='cassandra,dse,graph,tinkerpop',

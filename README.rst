@@ -1,8 +1,8 @@
-DataStax Enterprise Python Driver TinkerPop Extension
-=====================================================
+DataStax Enterprise Python Graph Extension
+==========================================
 
 This package builds on the core DataStax Enterprise Python driver, adding functionality
-for interacting with DSE graph features and TinkerPop.
+for interacting with DSE graph features (ie. TinkerPop).
 
 This driver is solely for use with DataStax Enterprise. See the License section below.
 
@@ -14,16 +14,16 @@ Installation
 ------------
 Installation through pip is recommended::
 
-    $ pip install dse-tinkerpop
+    $ pip install dse-graph
 
 Documentation
 -------------
-The documentation can be found online `here <http://docs.datastax.com/en/latest-dse-tinkerpop/>`_.
+The documentation can be found online `here <http://docs.datastax.com/en/latest-dse-graph/>`_.
 
 A couple of links for getting up to speed:
 
-* `Installation <http://docs.datastax.com/en/developer/dse-tinkerpop/v1.0/installation/>`_
-* `Getting started guide <http://docs.datastax.com/en/developer/dse-tinkerpop/v1.0/getting_started/>`_
+* `Installation <http://docs.datastax.com/en/developer/dse-graph/v1.0/installation/>`_
+* `Getting started guide <http://docs.datastax.com/en/developer/dse-graph/v1.0/getting_started/>`_
 
 Reporting Problems
 ------------------

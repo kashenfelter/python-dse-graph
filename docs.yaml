@@ -1,5 +1,5 @@
-title: DataStax Enterprise Python Driver TinkerPop Extension
-summary: DataStax Enterprise Python Driver TinkerPop Extension Documentation
+title: DataStax Enterprise Python Graph Extension
+summary: DataStax Enterprise Python Graph Extension Documentation
 output: docs/_build/
 sections:
   - title: N/A

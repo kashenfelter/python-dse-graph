@@ -22,10 +22,10 @@ build:
       export PYTHONPATH="${PYTHONPATH}:$HOME/python-driver-dse/tests"
       popd
       # Install dependencies
-      echo "installing dse tinkerpop dependencies"
+      echo "installing dse graph dependencies"
       sudo pip install -r test-requirements.txt
       sudo pip install nose-ignore-docstring
-       echo "installing dse tinkerpop"
+       echo "installing dse graph"
       sudo python setup.py install
       ECHO $PYTHONPATH
       echo "==========RUNNING DSE TESTS INTEGRATION TESTS=========="
