@@ -69,9 +69,11 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
 
         query = DseGraph.query_from_traversal(bytecode)
         ep = self.session.execution_profile_clone_update(self.execution_profile, row_factory=graph_traversal_row_factory)
-        graph_options = ep.graph_options.copy()
-        graph_options.graph_name = self.graph_name
-        ep.graph_options = graph_options
+
+        if self.graph_name:
+            graph_options = ep.graph_options.copy()
+            graph_options.graph_name = self.graph_name
+            ep.graph_options = graph_options
 
         traversers = self.session.execute_graph(query, execution_profile=ep)
         traversers = [Traverser(t) for t in traversers]
