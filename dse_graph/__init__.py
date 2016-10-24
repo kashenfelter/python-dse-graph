@@ -13,7 +13,7 @@ from gremlin_python.structure.graph import Graph
 from gremlin_python.driver.remote_connection import RemoteConnection, RemoteTraversal
 from gremlin_python.process.traversal import Traverser, TraversalSideEffects
 
-from dse.cluster import Session, GraphExecutionProfile
+from dse.cluster import Session, GraphExecutionProfile, EXEC_PROFILE_GRAPH_DEFAULT
 from dse.graph import GraphOptions
 
 from dse_graph.graphson import GraphSONReader, GraphSONWriter, DseGraphSONReader
@@ -48,14 +48,14 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
 
     :param session: A DSE session
     :param graph_name: (Optional) DSE Graph name
-    :param execution_profile: (Optional) Execution profile name for traversal queries. Default is set to :class:`.GraphTraversalExecutionProfile`.
+    :param execution_profile: (Optional) Execution profile for traversal queries. Default is set to :class:`.GraphTraversalExecutionProfile`.
     """
 
     session = None
     graph_name = None
     execution_profile = None
 
-    def __init__(self, session, graph_name, execution_profile):
+    def __init__(self, session, graph_name, execution_profile=EXEC_PROFILE_GRAPH_DEFAULT):
         super(DSESessionRemoteGraphConnection, self).__init__(None, None)
 
         if not isinstance(session, Session):
@@ -110,13 +110,13 @@ class DseGraph(object):
         return query
 
     @staticmethod
-    def traversal_source(session=None, graph_name=None, execution_profile=None):
+    def traversal_source(session=None, graph_name=None, execution_profile=EXEC_PROFILE_GRAPH_DEFAULT):
         """
         Returns a TinkerPop GraphTraversalSource binded to the session and graph_name if provided.
 
         :param session: A DSE session
         :param graph_name: (Optional) DSE Graph name
-        :param execution_profile: (Optional) Execution profile name for traversal queries.
+        :param execution_profile: (Optional) Execution profile for traversal queries. Default is set to :class:`.GraphTraversalExecutionProfile`.
 
         .. code-block:: python
 
