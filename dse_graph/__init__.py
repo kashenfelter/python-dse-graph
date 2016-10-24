@@ -44,10 +44,10 @@ def graph_traversal_dse_object_row_factory(column_names, rows):
 
 class DSESessionRemoteGraphConnection(RemoteConnection):
     """
-    A TinkerPop RemoteConnection to execute traversal queries on DSE.
+    A Tinkerpop RemoteConnection to execute traversal queries on DSE.
 
     :param session: A DSE session
-    :param graph_name: (Optional) DSE Graph name
+    :param graph_name: (Optional) DSE Graph name.
     :param execution_profile: (Optional) Execution profile for traversal queries. Default is set to :class:`.GraphTraversalExecutionProfile`.
     """
 
@@ -55,7 +55,7 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
     graph_name = None
     execution_profile = None
 
-    def __init__(self, session, graph_name, execution_profile=EXEC_PROFILE_GRAPH_DEFAULT):
+    def __init__(self, session, graph_name=None, execution_profile=EXEC_PROFILE_GRAPH_DEFAULT):
         super(DSESessionRemoteGraphConnection, self).__init__(None, None)
 
         if not isinstance(session, Session):
@@ -132,7 +132,7 @@ class DseGraph(object):
             session = c.connect()
 
             g = DseGraph.traversal_source(session, 'my_graph')
-            print g.V().valueMap().toList():
+            print g.V().valueMap().toList()
 
         """
 
@@ -149,6 +149,7 @@ class DseGraph(object):
     def create_execution_profile(graph_name):
         """
         Creates an ExecutionProfile for GraphTraversal execution.
+
         :param graph_name: The graph name
         """
 
