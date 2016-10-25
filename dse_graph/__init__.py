@@ -148,7 +148,8 @@ class DseGraph(object):
     @staticmethod
     def create_execution_profile(graph_name):
         """
-        Creates an ExecutionProfile for GraphTraversal execution.
+        Creates an ExecutionProfile for GraphTraversal execution. You need to register that execution profile to the
+        cluster by using `cluster.add_execution_profile`.
 
         :param graph_name: The graph name
         """
