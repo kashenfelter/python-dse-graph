@@ -102,15 +102,11 @@ class DseGraph(object):
         :param traversal: The GraphTraversal object
         """
 
-        language = DseGraph.DSE_GRAPH_QUERY_LANGUAGE
-        if language == 'bytecode-json':
-            try:
-                query = GraphSONWriter.writeObject(traversal)
-            except Exception as e:
-                log.exception("Error preparing graphson traversal query:")
-                raise
-        else:
-            raise NotImplementedError("Query language '{0}' is not implemented".format(DseGraph.DSE_GRAPH_QUERY_LANGUAGE))
+        try:
+            query = GraphSONWriter.writeObject(traversal)
+        except Exception as e:
+            log.exception("Error preparing graphson traversal query:")
+            raise
 
         return query
 
