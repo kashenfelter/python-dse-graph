@@ -12,6 +12,7 @@ import logging
 from gremlin_python.structure.graph import Graph
 from gremlin_python.driver.remote_connection import RemoteConnection, RemoteTraversal
 from gremlin_python.process.traversal import Traverser, TraversalSideEffects
+from gremlin_python.process.graph_traversal import GraphTraversal
 
 from dse.cluster import Session, GraphExecutionProfile, EXEC_PROFILE_GRAPH_DEFAULT
 from dse.graph import GraphOptions
@@ -102,6 +103,13 @@ class DseGraph(object):
 
         :param traversal: The GraphTraversal object
         """
+
+        if isinstance(traversal, GraphTraversal):
+            for strategy in traversal.traversal_strategies.traversal_strategies:
+                rc = strategy.remote_connection
+                if (isinstance(rc, DSESessionRemoteGraphConnection) and
+                    rc.session or rc.graph_name or rc.execution_profile):
+                        log.warning(" GraphTraversal session, graph_name and execution_profile are only taken into account when executed with TinkerPop.")
 
         try:
             query = GraphSONWriter.writeObject(traversal)
