@@ -450,7 +450,7 @@ class DseVertexDeserializer(GraphSONDeserializer):
 class DseVertexPropertyDeserializer(GraphSONDeserializer):
     def _objectify(self, dict):
         value = dict[_SymbolHelper._VALUE]
-        return DseVertexProperty(DseGraphSONReader._objectify(value["value"]), DseGraphSONReader._objectify(value.get('properties', {})))
+        return DseVertexProperty(value['label'], DseGraphSONReader._objectify(value["value"]), DseGraphSONReader._objectify(value.get('properties', {})))
 
 
 class DseEdgeDeserializer(GraphSONDeserializer):
