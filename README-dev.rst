@@ -15,11 +15,11 @@ Running the Tests
 Test invocation is the same as in the core driver. However, these tests use some packages from the base test suite, so
 they require those packages in the PYTHONPATH. To run these tests, first set the PYTHONPATH as follows::
 
-    export PYTHONPATH=/path-to-core-repo/:/path-to-core-repo/tests
+    export PYTHONPATH=/path-to-core-repo/:/path-to-core-repo/tests:/path-to-dse-repo/:/path-to-dse-repo/tests
 
 An example integration test run::
 
-    ADS_HOME=/path-to-testeng-devtools/EmbeddedAds/ CASSANDRA_DIR=/path-to-built-dse DSE_VERSION=5.0.0 nosetests -s -v tests/integration/
+    CASSANDRA_DIR=/path-to-built-dse DSE_VERSION=5.0.3 DSE_DRIVER_PERMIT_UNSUPPORTED_CORE=True nosetests -s -v tests/graphtest/integration/test_graph.py
 
 Building the Docs
 =================

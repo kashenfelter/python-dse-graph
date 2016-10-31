@@ -1,5 +1,5 @@
 1.0.0a1
 =======
-October X, 2016
+October 31, 2016
 
-Initial release
+Initial Alpha release
