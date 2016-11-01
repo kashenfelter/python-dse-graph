@@ -58,7 +58,7 @@ class DocCommand(Command):
         print("Documentation step '%s' performed, results here:" % mode)
         print("   file://%s/%s/index.html" % (os.path.dirname(os.path.realpath(__file__)), path))
 
-dependencies = ['cassandra-driver-dse>=1.0,<=2', 'gremlinpython>=3.2,<4', 'six>=1.6', 'isodate>=0.5,<1']
+dependencies = ['cassandra-driver-dse>=1.0,<=2', 'gremlinpython==3.2.4.dev1478023292', 'six>=1.6', 'isodate>=0.5,<1']
 
 setup(
     name='dse-graph',
