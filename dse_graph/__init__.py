@@ -150,8 +150,8 @@ class DseGraph(object):
 
         return traversal_source
 
-    @staticmethod
-    def create_execution_profile(graph_name):
+    @classmethod
+    def create_execution_profile(cls, graph_name):
         """
         Creates an ExecutionProfile for GraphTraversal execution. You need to register that execution profile to the
         cluster by using `cluster.add_execution_profile`.
