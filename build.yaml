@@ -1,3 +1,8 @@
+schedules:
+  commit:
+    schedule: per_commit
+    branches:
+      include: [master]
 python:
   - 2.7
   - 3.4
@@ -15,22 +20,26 @@ build:
       cd $HOME/ccm
       sudo python setup.py install
       cd $HOME
+      git clone https://github.com/datastax/python-driver.git
+      cd python-driver
+      echo "installing python driver master"
+      sudo pip install --install-option="--no-cython"
+      cd $HOME
       git clone https://github.com/datastax/python-driver-dse.git
       cd python-driver-dse
       echo "installing python driver dse master"
       sudo python setup.py install
-      export PYTHONPATH="${PYTHONPATH}:$HOME/python-driver-dse/tests"
       popd
+      export PYTHONPATH="${PYTHONPATH}:$HOME/python-driver/tests:$HOME/python-driver-dse/tests"
       # Install dependencies
       echo "installing dse graph dependencies"
       sudo pip install -r test-requirements.txt
       sudo pip install nose-ignore-docstring
-       echo "installing dse graph"
+      echo "installing dse graph"
       sudo python setup.py install
-      ECHO $PYTHONPATH
+      pwd
       echo "==========RUNNING DSE TESTS INTEGRATION TESTS=========="
-      DSE_VERSION=$CCM_VERSION DSE_DRIVER_PERMIT_UNSUPPORTED_CORE=True ADS_HOME=$HOME/ nosetests -s -v --logging-format="[%(levelname)s] %(asctime)s %(thread)d: %(message)s" --with-ignore-docstrings --with-xunit --xunit-file=unit_results.xml tests/unit/ || true
-      DSE_VERSION=$CCM_VERSION DSE_DRIVER_PERMIT_UNSUPPORTED_CORE=True ADS_HOME=$HOME/ nosetests -s -v --logging-format="[%(levelname)s] %(asctime)s %(thread)d: %(message)s" --with-ignore-docstrings --with-xunit --xunit-file=integration_results.xml tests/integration/ || true
+      DSE_VERSION=$CCM_VERSION DSE_DRIVER_PERMIT_UNSUPPORTED_CORE=True nosetests -s -v --logging-format="[%(levelname)s] %(asctime)s %(thread)d: %(message)s" --with-ignore-docstrings --with-xunit --xunit-file=integration_results.xml tests/graphtest/integration/ || true
 
   - xunit:
     - "*_results.xml"
