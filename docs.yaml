@@ -1,0 +1,11 @@
+title: DataStax Enterprise Python Graph Extension
+summary: DataStax Enterprise Python Graph Extension Documentation
+output: docs/_build/
+sections:
+  - title: N/A
+    prefix: /
+    type: sphinx
+    directory: docs
+versions:
+  - name: v1.0
+    ref: HEAD
