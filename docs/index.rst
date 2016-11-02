@@ -1,6 +1,6 @@
-DataStax Enterprise Python GraphExtension
-=========================================
-This is the documentation for the DataStax Enterprise Python Graph Extension for DSE. This
+DataStax Enterprise Python Graph Extension
+==========================================
+This is the documentation for the DataStax Enterprise Python Graph Extension. This
 extension is built on top of the `DataStax Enterprise Python driver <http://docs.datastax.com/en/developer/python-driver-dse>`_
 and adds graph features, like executing TinkerPop traversals on DSE. Here are the main features of the extension:
 

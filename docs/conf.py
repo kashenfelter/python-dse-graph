@@ -191,7 +191,7 @@ htmlhelp_basename = 'DSEGraphpExtensiondoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'dse-graph.tex', u'DSE Graph Extension Documentation', u'DataStax', 'manual'),
+    ('index', 'python-dse-graph.tex', u'DSE Python Graph Extension Documentation', u'DataStax', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -223,6 +223,6 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'dse-graph', u'DSE Driver Graph Extension Documentation',
-     [u'Alan Boudreault', u'Adam Holmberg'], 1)
+    ('index', 'dse-graph', u'DSE Python Driver Graph Extension Documentation',
+     [u'Alan Boudreault', u'Adam Holmberg', u'Greg Bestland'], 1)
 ]
