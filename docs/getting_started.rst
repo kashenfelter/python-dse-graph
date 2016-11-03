@@ -26,7 +26,7 @@ how to accomplish this this configuration:
 
 If you want to change execution property defaults, please see the `Execution Profile documentation <http://docs.datastax.com/en/developer/python-driver/3.7/execution_profiles/>`_
 for a more generalized discussion of the API. Graph traversal queries use the same execution profile defined for DSE graph. If you
-need to change the default properties, please refer to this documentation page: `DSE Graph Queries <http://docs.datastax.com/en/developer/python-driver-dse/v1.1/graph/>`_
+need to change the default properties, please refer to this documentation page: `DSE Graph Queries <http://docs.datastax.com/en/developer/python-driver-dse/1.1/graph/>`_
 
 
 Graph Traversal Queries via a DSE Session (Explicit Execution)

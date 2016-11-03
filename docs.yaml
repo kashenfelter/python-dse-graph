@@ -7,5 +7,5 @@ sections:
     type: sphinx
     directory: docs
 versions:
-  - name: v1.0a1
+  - name: 1.0a1
     ref: HEAD
