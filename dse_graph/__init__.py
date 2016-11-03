@@ -49,7 +49,7 @@ class DSESessionRemoteGraphConnection(RemoteConnection):
 
     :param session: A DSE session
     :param graph_name: (Optional) DSE Graph name.
-    :param execution_profile: (Optional) Execution profile for traversal queries. Default is set to :class:`.GraphTraversalExecutionProfile`.
+    :param execution_profile: (Optional) Execution profile for traversal queries. Default is set to `EXEC_PROFILE_GRAPH_DEFAULT`.
     """
 
     session = None
@@ -126,7 +126,7 @@ class DseGraph(object):
 
         :param session: A DSE session
         :param graph_name: (Optional) DSE Graph name
-        :param execution_profile: (Optional) Execution profile for traversal queries. Default is set to :class:`.GraphTraversalExecutionProfile`.
+        :param execution_profile: (Optional) Execution profile for traversal queries. Default is set to `EXEC_PROFILE_GRAPH_DEFAULT`.
 
         .. code-block:: python
 
