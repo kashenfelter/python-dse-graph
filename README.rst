@@ -18,12 +18,12 @@ Installation through pip is recommended::
 
 Documentation
 -------------
-The documentation can be found online `here <http://docs.datastax.com/en/latest-dse-graph/>`_.
+The documentation can be found online `here <http://docs.datastax.com/en/developer/python-dse-graph/>`_.
 
 A couple of links for getting up to speed:
 
-* `Installation <http://docs.datastax.com/en/developer/dse-graph/1.0a1/installation/>`_
-* `Getting started guide <http://docs.datastax.com/en/developer/dse-graph/1.0a1/getting_started/>`_
+* `Installation <http://docs.datastax.com/en/developer/python-dse-graph/1.0a1/installation/>`_
+* `Getting started guide <http://docs.datastax.com/en/developer/python-dse-graph/1.0a1/getting_started/>`_
 
 Reporting Problems
 ------------------
