@@ -1,5 +1,5 @@
 1.0.0a1
 =======
-October 31, 2016
+November 4, 2016
 
-Initial Alpha release
+Initial alpha release
