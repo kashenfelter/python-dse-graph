@@ -15,6 +15,7 @@ build:
       export JAVA_HOME=$CCM_JAVA_HOME
       export PATH=$JAVA_HOME/bin:$PATH
       # install master branch of driver.
+      sudo apt-get remove python-setuptools
       sudo pip install -U setuptools
       pushd ./
       echo "installing ccm"
