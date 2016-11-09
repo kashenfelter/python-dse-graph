@@ -13,11 +13,12 @@ from gremlin_python.structure.graph import Graph
 from gremlin_python.driver.remote_connection import RemoteConnection, RemoteTraversal
 from gremlin_python.process.traversal import Traverser, TraversalSideEffects
 from gremlin_python.process.graph_traversal import GraphTraversal
+from gremlin_python.structure.io.graphson import GraphSONReader, GraphSONWriter
 
 from dse.cluster import Session, GraphExecutionProfile, EXEC_PROFILE_GRAPH_DEFAULT
 from dse.graph import GraphOptions
 
-from dse_graph.graphson import GraphSONReader, GraphSONWriter, DseGraphSONReader
+from dse_graph.serializers import serializers, deserializers, dse_deserializers
 from dse_graph._version import __version__, __version_info__
 
 
@@ -28,19 +29,24 @@ class NullHandler(logging.Handler):
 logging.getLogger('dse_graph').addHandler(NullHandler())
 log = logging.getLogger(__name__)
 
+# Create our custom GraphSONReader/Writer
+dse_graphson_reader = GraphSONReader(deserializer_map=dse_deserializers)
+graphson_reader = GraphSONReader(deserializer_map=deserializers)
+graphson_writer = GraphSONWriter(serializer_map=serializers)
+
 
 def graph_traversal_row_factory(column_names, rows):
     """
     Row Factory that returns the decoded graphson.
     """
-    return [GraphSONReader.readObject(row[0])['result'] for row in rows]
+    return [graphson_reader.readObject(row[0])['result'] for row in rows]
 
 
 def graph_traversal_dse_object_row_factory(column_names, rows):
     """
     Row Factory that returns the decoded graphson as DSE types.
     """
-    return [DseGraphSONReader.readObject(row[0])['result'] for row in rows]
+    return [dse_graphson_reader.readObject(row[0])['result'] for row in rows]
 
 
 class DSESessionRemoteGraphConnection(RemoteConnection):
@@ -108,11 +114,11 @@ class DseGraph(object):
             for strategy in traversal.traversal_strategies.traversal_strategies:
                 rc = strategy.remote_connection
                 if (isinstance(rc, DSESessionRemoteGraphConnection) and
-                    rc.session or rc.graph_name or rc.execution_profile):
-                        log.warning(" GraphTraversal session, graph_name and execution_profile are only taken into account when executed with TinkerPop.")
+                   rc.session or rc.graph_name or rc.execution_profile):
+                    log.warning(" GraphTraversal session, graph_name and execution_profile are only taken into account when executed with TinkerPop.")
 
         try:
-            query = GraphSONWriter.writeObject(traversal)
+            query = graphson_writer.writeObject(traversal)
         except Exception as e:
             log.exception("Error preparing graphson traversal query:")
             raise
