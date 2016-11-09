@@ -2,7 +2,7 @@ schedules:
   commit:
     schedule: per_commit
     branches:
-      include: [master]
+      include: [master, /grap.*/]
 python:
   - 2.7
   - 3.4
