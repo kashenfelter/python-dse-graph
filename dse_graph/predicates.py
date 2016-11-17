@@ -11,6 +11,10 @@
 from gremlin_python.process.traversal import P
 
 
+class GeoP(P):
+    pass
+
+
 class Search(object):
 
     @staticmethod
@@ -57,3 +61,15 @@ class Search(object):
         :param value: the value to look for.
         """
         return P('regex', value)
+
+
+class Geo(object):
+
+    @staticmethod
+    def inside(value):
+        """
+        Search any instance of geometry inside the Distance targeted.
+
+        :param value: A Distance to look for.
+        """
+        return GeoP('inside', value)
