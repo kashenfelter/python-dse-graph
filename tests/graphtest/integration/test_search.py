@@ -19,7 +19,6 @@ from dsetest.integration import BasicSharedGraphUnitTestCase, use_single_node_wi
 from dse.util import Distance, Polygon
 
 
-
 def setup_module():
     use_single_node_with_graph_and_solr()
 
@@ -28,7 +27,15 @@ class AbstractSearchTest():
 
 
     def test_search_by_prefix(self):
+        """
+        Test to validate that solr searches by prefix function.
 
+        @since 1.0.0
+        @jira_ticket PYTHON-660
+        @expected_result all names starting with Paul should be returned
+
+        @test_category dse graph
+        """
         g = self.fetch_traversal_source()
         traversal = g.V().has("person", "name", Search.prefix("Paul")).values("name")
         results_list = self.execute_traversal(traversal)
@@ -37,7 +44,15 @@ class AbstractSearchTest():
 
 
     def test_search_by_regex(self):
+        """
+        Test to validate that solr searches by regex function.
 
+        @since 1.0.0
+        @jira_ticket PYTHON-660
+        @expected_result all names containing Paul should be returned
+
+        @test_category dse graph
+        """
         g = self.fetch_traversal_source()
         traversal =  g.V().has("person", "name", Search.regex(".*Paul.*")).values("name")
         results_list = self.execute_traversal(traversal)
@@ -46,7 +61,15 @@ class AbstractSearchTest():
         self.assertIn("James Paul Smith", results_list )
 
     def test_search_by_token(self):
+        """
+        Test to validate that solr searches by token.
 
+        @since 1.0.0
+        @jira_ticket PYTHON-660
+        @expected_result all names with description containing could shoud be returned
+
+        @test_category dse graph
+        """
         g = self.fetch_traversal_source()
         traversal =  g.V().has("person", "description", Search.token("cold")).values("name")
         results_list = self.execute_traversal(traversal)
@@ -56,7 +79,15 @@ class AbstractSearchTest():
 
 
     def test_search_by_token_prefix(self):
+        """
+        Test to validate that solr searches by token prefix.
 
+        @since 1.0.0
+        @jira_ticket PYTHON-660
+        @expected_result all names with description containing a token starting with h are returned
+
+        @test_category dse graph
+        """
         g = self.fetch_traversal_source()
         traversal =  g.V().has("person", "description", Search.token_prefix("h")).values("name")
         results_list = self.execute_traversal(traversal)
@@ -66,6 +97,15 @@ class AbstractSearchTest():
 
 
     def test_search_by_token_regex(self):
+        """
+        Test to validate that solr searches by token regex.
+
+        @since 1.0.0
+        @jira_ticket PYTHON-660
+        @expected_result all names with description containing nice or hospital are returned
+
+        @test_category dse graph
+        """
 
         g = self.fetch_traversal_source()
         traversal =  g.V().has("person", "description", Search.token_regex("(nice|hospital)")).values("name")
@@ -75,7 +115,15 @@ class AbstractSearchTest():
         self.assertIn( "Jill Alice", results_list )
 
     def test_search_by_distance(self):
+        """
+        Test to validate that solr searches by distance.
 
+        @since 1.0.0
+        @jira_ticket PYTHON-660
+        @expected_result all names with a geo location within a 2 radius distance of -92,44 are returned
+
+        @test_category dse graph
+        """
         g = self.fetch_traversal_source()
         traversal =  g.V().has("person", "coordinates", Geo.inside(Distance(-92, 44, 2))).values("name");
         results_list = self.execute_traversal(traversal)
@@ -85,7 +133,15 @@ class AbstractSearchTest():
 
     @unittest.skip
     def test_search_by_polygon_area(self):
+        """
+        Test to validate that solr searches by polygon area.
 
+        @since 1.0.0
+        @jira_ticket PYTHON-660
+        @expected_result all names with geo location encompassed in the polygon are returned
+
+        @test_category dse graph
+        """
         g = self.fetch_traversal_source()
         traversal =  g.V().has("person", "coordinates", Geo.inside(Polygon([(-85, 40), (-92.5, 45), (-95, 38), (-85, 40)])))
         results_list = self.execute_traversal(traversal)
@@ -96,8 +152,8 @@ class AbstractSearchTest():
 
 class ImplicitSearchTest(AbstractSearchTest, BasicSharedGraphUnitTestCase):
     """
-    This test class will execute all tests of the AbstractTraversalTestClass using implicit execution
-    This all traversal will be run directly using toList()
+    This test class will execute all tests of the AbstractSearchTest using implicit execution
+    All traversals will be run directly using toList()
     """
     @classmethod
     def setUpClass(self):
@@ -119,8 +175,8 @@ class ImplicitSearchTest(AbstractSearchTest, BasicSharedGraphUnitTestCase):
 
 class ExplicitSearchTest(AbstractSearchTest, BasicSharedGraphUnitTestCase):
     """
-    This test class will execute all tests of the AbstractTraversalTestClass using implicit execution
-    This all traversal will be run directly using toList()
+    This test class will execute all tests of the AbstractSearchTest using implicit execution
+    All traversals will be converted to byte code then they will be executed explicitly.
     """
     @classmethod
     def setUpClass(self):
@@ -135,7 +191,6 @@ class ExplicitSearchTest(AbstractSearchTest, BasicSharedGraphUnitTestCase):
 
     def execute_traversal(self, traversal):
         query = DseGraph.query_from_traversal(traversal)
-        import pdb;pdb.set_trace()
         #Use an ep that is configured with the correct row factory, and bytecode-json language flat set
         result_set = self.session.execute_graph(query, execution_profile=self.ep)
         return list(result_set)

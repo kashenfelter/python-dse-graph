@@ -7,12 +7,23 @@
 #
 # http://www.datastax.com/terms/datastax-dse-driver-license-terms
 
-
 from gremlin_python.process.traversal import P
 
+class GeoP():
 
-class GeoP(P):
-    pass
+ def __init__(self, operator, value, other=None):
+    self.operator = operator
+    self.value = value
+    self.other = other
+
+    @staticmethod
+    def inside(*args):
+      return GeoP("inside", *args)
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.operator == other.operator and self.value == other.value and self.other == other.other
+    def __repr__(self):
+      return self.operator + "(" + str(self.value) + ")" if self.other is None else self.operator + "(" + str(self.value) + "," + str(self.other) + ")"
+
 
 
 class Search(object):
