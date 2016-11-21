@@ -9,7 +9,7 @@
 
 from gremlin_python.process.traversal import P
 
-class GeoP():
+class GeoP(object):
 
  def __init__(self, operator, value, other=None):
     self.operator = operator
