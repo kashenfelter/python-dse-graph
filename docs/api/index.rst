@@ -4,3 +4,4 @@ API Documentation
    :maxdepth: 1
 
    dse_graph
+   predicates

@@ -26,7 +26,8 @@ from dse.graph import (
     Edge as DseEdge,
     Path as DsePath
 )
-from dse.util import Point, LineString, Polygon
+from dse_graph.predicates import GeoP
+from dse.util import Point, LineString, Polygon, Distance
 
 MAX_INT32 = 2**32-1
 
@@ -81,6 +82,17 @@ class Int64Deserializer(object):
         if six.PY3:
             return v
         return long(v)
+
+
+class GeoPSerializer(object):
+    @classmethod
+    def dictify(cls, p, writer):
+        out = {
+            "predicateType": "Geo",
+            "predicate": p.operator,
+            "value": [writer.toDict(p.value), writer.toDict(p.other)] if p.other is not None else writer.toDict(p.value)
+        }
+        return GraphSONUtil.typedValue("P", out, prefix='dse')
 
 
 class UUIDIO(object):
@@ -176,6 +188,16 @@ class PolygonIO(object):
         return Polygon.from_wkt(v)
 
 
+class DistanceIO(object):
+    @classmethod
+    def dictify(cls, v, _):
+        return GraphSONUtil.typedValue('Distance', six.text_type(v), prefix='dse')
+
+    @classmethod
+    def objectify(cls, v, _):
+        return Point.from_wkt(v)
+
+
 class StringDeserializer(object):
     @classmethod
     def objectify(cls, v, _):
@@ -239,6 +261,8 @@ serializers = {
     Point: PointIO,
     LineString: LineStringIO,
     Polygon: PolygonIO,
+    Distance: DistanceIO,
+    GeoP: GeoPSerializer
 }
 
 if six.PY2:
@@ -263,7 +287,8 @@ deserializers = {
     "dse:Blob": BlobIO,
     "dse:Point": PointIO,
     "dse:LineString": LineStringIO,
-    "dse:Polygon": PolygonIO
+    "dse:Polygon": PolygonIO,
+    "dse:Distance": DistanceIO
 }
 
 dse_deserializers = deserializers.copy()

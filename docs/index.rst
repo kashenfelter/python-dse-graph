@@ -7,6 +7,7 @@ and adds graph features, like executing TinkerPop traversals on DSE. Here are th
 * A TinkerPop GraphTraversalSource builder to execute traversals on DSE
 * The ability to execution traversal queries explicitly, like other DSE requests work
 * GraphSON serializers for DSE Graph types.
+* DSE Search predicates
 
 Contents
 --------
@@ -15,6 +16,9 @@ Contents
 
 :doc:`getting_started`
     First steps of connecting to DSE and executing traversal queries.
+
+:doc:`search_predicates`
+    Working with DSE Search.
 
 :doc:`api/index`
     The API documentation.
@@ -25,6 +29,7 @@ Contents
    api/index
    installation
    getting_started
+   search_predicates
 
 Feedback/Issues
 ---------------
