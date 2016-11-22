@@ -1,7 +1,7 @@
 Search
 ======
 
-DSE Graph can use search indexes that take advantage of DSE Search functionality for efficient traversal queries. Here are the list of additional search predicates:
+DSE Graph can use search indexes that take advantage of DSE Search functionality for efficient traversal queries. Here is the list of additional search predicates:
 
 Text tokenization:
 
