@@ -15,6 +15,7 @@ build:
       export JAVA_HOME=$CCM_JAVA_HOME
       export PATH=$JAVA_HOME/bin:$PATH
       export DSE_DRIVER_SKIP_BASE_DRIVER_INSTALL=1
+      export CASS_DRIVER_NO_CYTHON=1
       # install master branch of driver.
       pushd ./
       echo "installing ccm"
@@ -24,7 +25,7 @@ build:
       git clone https://github.com/datastax/python-driver.git
       cd python-driver
       echo "installing python driver master"
-      sudo -E python setup.py install --install-option="--no-cython"
+      sudo -E python setup.py install
       cd $HOME
       git clone https://github.com/datastax/python-driver-dse.git
       cd python-driver-dse
