@@ -14,7 +14,7 @@ build:
   - script: |
       export JAVA_HOME=$CCM_JAVA_HOME
       export PATH=$JAVA_HOME/bin:$PATH
-      export CASS_DRIVER_NO_EXTENSIONS=1
+      export DSE_DRIVER_SKIP_BASE_DRIVER_INSTALL=1
       # install master branch of driver.
       pushd ./
       echo "installing ccm"
@@ -24,12 +24,12 @@ build:
       git clone https://github.com/datastax/python-driver.git
       cd python-driver
       echo "installing python driver master"
-      sudo python setup.py install
+      sudo -E python setup.py install --install-option="--no-cython"
       cd $HOME
       git clone https://github.com/datastax/python-driver-dse.git
       cd python-driver-dse
       echo "installing python driver dse master"
-      sudo python setup.py install
+      sudo -E python setup.py install
       popd
       export PYTHONPATH="${PYTHONPATH}:$HOME/python-driver/tests:$HOME/python-driver-dse/tests"
       # Install dependencies
@@ -37,7 +37,7 @@ build:
       sudo pip install -r test-requirements.txt
       sudo pip install nose-ignore-docstring
       echo "installing dse graph"
-      sudo python setup.py install
+      sudo -E python setup.py install
       pwd
       echo "==========RUNNING DSE TESTS INTEGRATION TESTS=========="
       DSE_VERSION=$CCM_VERSION DSE_DRIVER_PERMIT_UNSUPPORTED_CORE=True nosetests -s -v --logging-format="[%(levelname)s] %(asctime)s %(thread)d: %(message)s" --with-ignore-docstrings --with-xunit --xunit-file=integration_results.xml tests/graphtest/integration/ || true
