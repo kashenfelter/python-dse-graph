@@ -26,7 +26,7 @@ from dse.graph import (
     Edge as DseEdge,
     Path as DsePath
 )
-from dse_graph.predicates import GeoP
+from dse_graph.predicates import GeoP, TextDistanceP
 from dse.util import Point, LineString, Polygon, Distance
 
 MAX_INT32 = 2**32-1
@@ -93,6 +93,19 @@ class GeoPSerializer(object):
             "value": [writer.toDict(p.value), writer.toDict(p.other)] if p.other is not None else writer.toDict(p.value)
         }
         return GraphSONUtil.typedValue("P", out, prefix='dse')
+
+
+class TextDistancePSerializer(object):
+    @classmethod
+    def dictify(cls, p, writer):
+        out = {
+            "predicate": p.operator,
+            "value": {
+                'query': writer.toDict(p.value),
+                'distance': writer.toDict(p.distance)
+            }
+        }
+        return GraphSONUtil.typedValue("P", out)
 
 
 class UUIDIO(object):
@@ -262,7 +275,8 @@ serializers = {
     LineString: LineStringIO,
     Polygon: PolygonIO,
     Distance: DistanceIO,
-    GeoP: GeoPSerializer
+    GeoP: GeoPSerializer,
+    TextDistanceP: TextDistancePSerializer
 }
 
 if six.PY2:

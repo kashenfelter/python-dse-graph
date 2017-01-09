@@ -8,11 +8,14 @@ Text tokenization:
 * :func:`token <dse_graph.predicates.Search.token>`
 * :func:`token_prefix <dse_graph.predicates.Search.token_prefix>`
 * :func:`token_regex <dse_graph.predicates.Search.token_regex>`
+* :func:`token_fuzzy <dse_graph.predicates.Search.token_fuzzy>`
 
 Text match:
 
 * :func:`prefix <dse_graph.predicates.Search.prefix>`
 * :func:`regex <dse_graph.predicates.Search.regex>`
+* :func:`fuzzy <dse_graph.predicates.Search.fuzzy>`
+* :func:`phrase <dse_graph.predicates.Search.phrase>`
 
 Geo:
 
