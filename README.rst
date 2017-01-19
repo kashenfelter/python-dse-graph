@@ -12,7 +12,11 @@ Features
 
 Installation
 ------------
-Installation through pip is recommended::
+Install dse-driver from the distributed package::
+
+    $ pip install /path/to/dse-driver-2.0.0.tar.gz
+
+Installation dse-graph through pip is recommended::
 
     $ pip install dse-graph
 
@@ -22,8 +26,8 @@ The documentation can be found online `here <http://docs.datastax.com/en/develop
 
 A couple of links for getting up to speed:
 
-* `Installation <http://docs.datastax.com/en/developer/python-dse-graph/1.0a1/installation/>`_
-* `Getting started guide <http://docs.datastax.com/en/developer/python-dse-graph/1.0a1/getting_started/>`_
+* `Installation <http://docs.datastax.com/en/developer/python-dse-graph/2.0.0b1/installation/>`_
+* `Getting started guide <http://docs.datastax.com/en/developer/python-dse-graph/2.0.0b1/getting_started/>`_
 
 Reporting Problems
 ------------------
