@@ -12,11 +12,7 @@ Features
 
 Installation
 ------------
-Install dse-driver from the distributed package::
-
-    $ pip install /path/to/dse-driver-2.0.0.tar.gz
-
-Installation dse-graph through pip is recommended::
+Installation through pip is recommended::
 
     $ pip install dse-graph
 
