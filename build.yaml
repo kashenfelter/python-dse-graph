@@ -10,11 +10,11 @@ os:
   - ubuntu/trusty64
 cassandra:
   - dse-5.0
+  - dse-5.1
 build:
   - script: |
       export JAVA_HOME=$CCM_JAVA_HOME
       export PATH=$JAVA_HOME/bin:$PATH
-      export DSE_DRIVER_SKIP_BASE_DRIVER_INSTALL=1
       export CASS_DRIVER_NO_CYTHON=1
       # install master branch of driver.
       pushd ./
@@ -22,17 +22,12 @@ build:
       cd $HOME/ccm
       sudo python setup.py install
       cd $HOME
-      git clone https://github.com/datastax/python-driver.git
-      cd python-driver
-      echo "installing python driver master"
-      sudo -E python setup.py install
-      cd $HOME
       git clone https://github.com/datastax/python-driver-dse.git
       cd python-driver-dse
       echo "installing python driver dse master"
       sudo -E python setup.py install
       popd
-      export PYTHONPATH="${PYTHONPATH}:$HOME/python-driver/tests:$HOME/python-driver-dse/tests"
+      export PYTHONPATH="${PYTHONPATH}:$HOME/python-dse-driver"
       # Install dependencies
       echo "installing dse graph dependencies"
       sudo pip install -r test-requirements.txt
@@ -41,7 +36,7 @@ build:
       sudo -E python setup.py install
       pwd
       echo "==========RUNNING DSE TESTS INTEGRATION TESTS=========="
-      DSE_VERSION=$CCM_VERSION DSE_DRIVER_PERMIT_UNSUPPORTED_CORE=True nosetests -s -v --logging-format="[%(levelname)s] %(asctime)s %(thread)d: %(message)s" --with-ignore-docstrings --with-xunit --xunit-file=integration_results.xml tests/graphtest/integration/ || true
+      DSE_VERSION=$CCM_VERSION DSE_DRIVER_PERMIT_UNSUPPORTED_CORE=True nosetests -s -v --logging-format="[%(levelname)s] %(asctime)s %(thread)d: %(message)s" --with-ignore-docstrings --with-xunit --xunit-file=integration_results.xml graphtests/integration/ || true
 
   - xunit:
     - "*_results.xml"

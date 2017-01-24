@@ -15,7 +15,8 @@ except ImportError:
 from dse_graph import DseGraph
 import time
 from dse_graph.predicates import Search, Geo
-from dsetest.integration import BasicSharedGraphUnitTestCase, use_single_node_with_graph_and_solr, generate_address_book_graph
+from tests.integration.advanced import BasicSharedGraphUnitTestCase, use_single_node_with_graph_and_solr, generate_address_book_graph
+from tests.integration import greaterthanorequaldse51
 from dse.util import Distance, Polygon
 
 
@@ -131,23 +132,75 @@ class AbstractSearchTest():
         self.assertIn("Paul Thomas Joe", results_list )
         self.assertIn( "George Bill Steve", results_list )
 
-    @unittest.skip
-    def test_search_by_polygon_area(self):
+    @greaterthanorequaldse51
+    def test_search_by_fuzzy(self):
         """
-        Test to validate that solr searches by polygon area.
+        Test to validate that solr searches by distance.
 
         @since 1.0.0
-        @jira_ticket PYTHON-660
-        @expected_result all names with geo location encompassed in the polygon are returned
+        @jira_ticket PYTHON-664
+        @expected_result all names with a geo location within a 2 radius distance of -92,44 are returned
 
         @test_category dse graph
         """
         g = self.fetch_traversal_source()
-        traversal =  g.V().has("person", "coordinates", Geo.inside(Polygon([(-85, 40), (-92.5, 45), (-95, 38), (-85, 40)])))
+        traversal =  g.V().has("person", "name", Search.fuzzy("Paul Thamas Joe" ,1)).values("name")
+        results_list = self.execute_traversal(traversal)
+        self.assertEqual(len(results_list), 1)
+        self.assertIn("Paul Thomas Joe", results_list )
+
+        traversal =  g.V().has("person", "name", Search.fuzzy("Paul Thames Joe" ,1)).values("name")
+        results_list = self.execute_traversal(traversal)
+        self.assertEqual(len(results_list), 0)
+
+    @greaterthanorequaldse51
+    def test_search_by_fuzzy_token(self):
+        """
+        Test to validate that fuzzy searches.
+
+        @since 1.0.0
+        @jira_ticket PYTHON-664
+        @expected_result all names with that differ from the search criteria by one letter should be returned
+
+        @test_category dse graph
+        """
+        g = self.fetch_traversal_source()
+        traversal =  g.V().has("person", "description", Search.token_fuzzy("lives", 1)).values("name");
+        # Should match 'Paul Thomas Joe' since description contains 'Lives'
+        # Should match 'James Paul Joe' since description contains 'Likes'
         results_list = self.execute_traversal(traversal)
         self.assertEqual(len(results_list), 2)
         self.assertIn("Paul Thomas Joe", results_list )
-        self.assertIn( "James Paul Smith", results_list )
+        self.assertIn("James Paul Smith", results_list )
+
+        traversal =  g.V().has("person", "description", Search.token_fuzzy("loues", 1)).values("name");
+        results_list = self.execute_traversal(traversal)
+        self.assertEqual(len(results_list), 0)
+
+    @greaterthanorequaldse51
+    def test_search_by_phrase(self):
+        """
+        Test to validate that phrase searches.
+
+        @since 1.0.0
+        @jira_ticket PYTHON-664
+        @expected_result all names with that differ from the search phrase criteria by two letter should be returned
+
+        @test_category dse graph
+        """
+        g = self.fetch_traversal_source()
+        traversal =  g.V().has("person", "description", Search.phrase("a cold", 2)).values("name");
+        #Should match 'George Bill Steve' since 'A cold dude' is at distance of 0 for 'a cold'.
+        #Should match 'Jill Alice' since 'Enjoys a very nice cold coca cola' is at distance of 2 for 'a cold'.
+        results_list = self.execute_traversal(traversal)
+        self.assertEqual(len(results_list), 2)
+        self.assertIn('George Bill Steve', results_list )
+        self.assertIn('Jill Alice', results_list )
+
+        traversal =  g.V().has("user", "description", Search.phrase("a bald", 2)).values("name");
+        results_list = self.execute_traversal(traversal)
+        self.assertEqual(len(results_list), 0)
+
 
 
 class ImplicitSearchTest(AbstractSearchTest, BasicSharedGraphUnitTestCase):

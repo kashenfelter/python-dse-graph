@@ -9,11 +9,10 @@
 
 import sys
 from dse_graph import DseGraph
-from dsetest.integration import BasicGraphUnitTestCase, use_single_node_with_graph_and_solr, generate_classic, generate_line_graph, generate_multi_field_graph, generate_large_complex_graph, generate_type_graph_schema, \
-    validate_classic_vertex, validate_classic_edge, validate_generic_vertex_result_type, validate_classic_edge_properties, validate_line_edge, validate_generic_edge_result_type, validate_path_result_type
+from tests.integration.advanced import BasicGraphUnitTestCase, use_single_node_with_graph_and_solr, generate_classic, generate_line_graph, generate_multi_field_graph, generate_large_complex_graph, generate_type_graph_schema, \
+    validate_classic_vertex, validate_classic_edge, validate_generic_vertex_result_type, validate_classic_edge_properties, validate_line_edge, validate_generic_edge_result_type, validate_path_result_type, TYPE_MAP
 from gremlin_python.structure.graph import Edge as TravEdge
 from gremlin_python.structure.graph import Vertex as TravVertex
-from dsetest.integration import TYPE_MAP
 from dse.util import Point, Polygon, LineString
 
 
