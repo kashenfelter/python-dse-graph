@@ -22,9 +22,9 @@ build:
       cd $HOME/ccm
       sudo python setup.py install
       cd $HOME
-      git clone https://github.com/datastax/python-driver-dse.git
-      cd python-driver-dse
-      echo "installing python driver dse master"
+      git clone git@github.com:riptano/python-dse-driver.git
+      cd python-dse-driver
+      echo "installing python dse driver master"
       sudo -E python setup.py install
       popd
       export PYTHONPATH="${PYTHONPATH}:$HOME/python-dse-driver"
