@@ -211,6 +211,18 @@ class DistanceIO(object):
         return Point.from_wkt(v)
 
 
+class DateIO(object):
+    FORMAT = '%Y-%m-%d'
+
+    @classmethod
+    def dictify(cls, v, _):
+        return GraphSONUtil.typedValue('LocalDate', v.strftime(cls.FORMAT), prefix='gx')
+
+    @classmethod
+    def objectify(cls, v, _):
+        return datetime.datetime.strptime(v, cls.FORMAT).date()
+
+
 class StringDeserializer(object):
     @classmethod
     def objectify(cls, v, _):
@@ -270,6 +282,7 @@ serializers = {
     Decimal: BigDecimalIO,
     datetime.datetime: InstantIO,
     datetime.timedelta: DurationIO,
+    datetime.date: DateIO,
     bytearray: BlobIO,
     Point: PointIO,
     LineString: LineStringIO,
@@ -302,7 +315,8 @@ deserializers = {
     "dse:Point": PointIO,
     "dse:LineString": LineStringIO,
     "dse:Polygon": PolygonIO,
-    "dse:Distance": DistanceIO
+    "dse:Distance": DistanceIO,
+    "gx:LocalDate": DateIO
 }
 
 dse_deserializers = deserializers.copy()
