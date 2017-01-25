@@ -15,9 +15,9 @@ except ImportError:
 from dse_graph import DseGraph
 import time
 from dse_graph.predicates import Search, Geo
-from tests.integration.advanced import BasicSharedGraphUnitTestCase, use_single_node_with_graph_and_solr, generate_address_book_graph
+from tests.integration.advanced import BasicSharedGraphUnitTestCase, generate_address_book_graph, use_single_node_with_graph_and_solr
 from tests.integration import greaterthanorequaldse51
-from dse.util import Distance, Polygon
+from dse.util import Distance
 
 
 def setup_module():
