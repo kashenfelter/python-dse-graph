@@ -35,7 +35,7 @@ build:
       echo "installing dse graph"
       sudo -E python setup.py install
       pwd
-      sudo pip uninstall gremlinpython
+      /usr/bin/yes | sudo pip uninstall gremlinpython
       sudo pip install gremlinpython
       echo "==========RUNNING DSE TESTS INTEGRATION TESTS=========="
       echo $PYTHONPATH
