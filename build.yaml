@@ -17,6 +17,7 @@ build:
       export PATH=$JAVA_HOME/bin:$PATH
       export CASS_DRIVER_NO_CYTHON=1
       # install master branch of driver.
+      sudo apt-get install subversion
       pushd ./
       echo "installing ccm"
       cd $HOME/ccm
@@ -27,7 +28,7 @@ build:
       echo "installing python dse driver master"
       sudo -E python setup.py install
       cd $HOME
-      svn export https://github.com/GregBestland/tinkerpop/trunk/gremlin-python/src/main/jython
+      svn export https://github.com/aboudreault/tinkerpop/branches/dse-graph-tests/gremlin-python/src/main/jython
       cd jython
       echo "Installing custom tinkerpop build"
       sudo -E python setup.py install
