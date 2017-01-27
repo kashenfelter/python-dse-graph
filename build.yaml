@@ -26,6 +26,11 @@ build:
       cd python-dse-driver
       echo "installing python dse driver master"
       sudo -E python setup.py install
+      cd $HOME
+      svn export https://github.com/GregBestland/tinkerpop/trunk/gremlin-python/src/main/jython
+      cd jython
+      echo "Installing custom tinkerpop build"
+      sudo -E python setup.py install
       popd
       export PYTHONPATH="$HOME/python-dse-driver/"
       # Install dependencies
@@ -35,8 +40,6 @@ build:
       echo "installing dse graph"
       sudo -E python setup.py install
       pwd
-      /usr/bin/yes | sudo pip uninstall gremlinpython
-      sudo pip install gremlinpython
       echo "==========RUNNING DSE TESTS INTEGRATION TESTS=========="
       echo $PYTHONPATH
       CASSANDRA_DIR=$CCM_INSTALL_DIR DSE_VERSION=$CCM_VERSION nosetests -s -v --logging-format="[%(levelname)s] %(asctime)s %(thread)d: %(message)s" --with-ignore-docstrings --with-xunit --xunit-file=integration_results.xml graphtests/integration/ || true
