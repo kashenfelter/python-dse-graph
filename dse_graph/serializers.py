@@ -49,6 +49,7 @@ inet         | gx:InetAddress | str (unicode)
 timestamp    | gx:Instant     | Datetime
 smallint     | gx:Int16       | int
 varint       | gx:BigInteger  | long
+date         | gx:LocalDate   | Date
 polygon      | dse:Polygon    | Polygon
 point        | dse:Point      | Point
 linestring   | dse:LineString | LineString
@@ -220,7 +221,11 @@ class DateIO(object):
 
     @classmethod
     def objectify(cls, v, _):
-        return datetime.datetime.strptime(v, cls.FORMAT).date()
+        try:
+            return datetime.datetime.strptime(v, cls.FORMAT).date()
+        except ValueError:
+            # negative date
+            return v
 
 
 class StringDeserializer(object):

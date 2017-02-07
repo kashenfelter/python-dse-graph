@@ -15,7 +15,7 @@ Running the Tests
 Test invocation is the same as in the core driver. However, these tests use some packages from the base test suite, so
 they require those packages in the PYTHONPATH. To run these tests, first set the PYTHONPATH as follows::
 
-    export PYTHONPATH=/path-to-core-repo/:/path-to-core-repo/tests:/path-to-dse-repo/:/path-to-dse-repo/tests
+    export PYTHONPATH=/path-to-dse-repo/:/path-to-dse-repo/tests
 
 An example integration test run::
 
