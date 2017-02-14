@@ -14,7 +14,8 @@ from tests.integration.advanced import BasicGraphUnitTestCase, use_single_node_w
 from gremlin_python.structure.graph import Edge as TravEdge
 from gremlin_python.structure.graph import Vertex as TravVertex
 from dse.util import Point, Polygon, LineString
-
+import datetime
+from six import string_types
 
 
 def setup_module():
@@ -277,7 +278,6 @@ class AbstractTraversalTest():
         vertices = self.execute_traversal(traversal)
         for vertex in vertices:
             original = TYPE_MAP[vertex.label][1]
-
             self._check_equality(g, original, vertex)
 
     def test_all_graph_types_without_schema(self):
@@ -417,19 +417,23 @@ class ImplicitExecutionTest(AbstractTraversalTest, BasicGraphUnitTestCase):
             if any(prop.key.startswith(t) for t in ('int', 'short')):
                 typ = int
 
-            elif any(prop.key.startswith(t) for t in ('long')):
+            elif any(prop.key.startswith(t) for t in ('long',)):
                 if sys.version_info >= (3, 0):
                     typ = int
                 else:
                     typ = long
             elif any(prop.key.startswith(t) for t in ('float', 'double')):
                 typ = float
-            elif any(prop.key.startswith(t) for t in ('polygon')):
+            elif any(prop.key.startswith(t) for t in ('polygon',)):
                 typ = Polygon
-            elif any(prop.key.startswith(t) for t in ('point')):
+            elif any(prop.key.startswith(t) for t in ('point',)):
                 typ = Point
-            elif any(prop.key.startswith(t) for t in ('Linestring')):
+            elif any(prop.key.startswith(t) for t in ('Linestring',)):
                 typ = LineString
+            elif any(prop.key.startswith(t) for t in ('neg',)):
+                typ=string_types
+            elif any(prop.key.startswith(t) for t in ('date',)):
+                typ = datetime.date
             else:
                 self.fail("Received unexpected type: %s" % prop.key)
             self.assertIsInstance(value, typ)
@@ -480,19 +484,23 @@ class ExplicitExecutionTest(AbstractTraversalTest, BasicGraphUnitTestCase):
             value =  vertex.properties[key][0].value
             if any(key.startswith(t) for t in ('int', 'short')):
                 typ = int
-            elif any(key.startswith(t) for t in ('long')):
+            elif any(key.startswith(t) for t in ('long',)):
                 if sys.version_info >= (3, 0):
                     typ = int
                 else:
                     typ = long
             elif any(key.startswith(t) for t in ('float', 'double')):
                 typ = float
-            elif any(key.startswith(t) for t in ('polygon')):
+            elif any(key.startswith(t) for t in ('polygon',)):
                 typ = Polygon
-            elif any(key.startswith(t) for t in ('point')):
+            elif any(key.startswith(t) for t in ('point',)):
                 typ = Point
-            elif any(key.startswith(t) for t in ('Linestring')):
+            elif any(key.startswith(t) for t in ('Linestring',)):
                 typ = LineString
+            elif any(key.startswith(t) for t in ('neg',)):
+                typ=string_types
+            elif any(key.startswith(t) for t in ('date',)):
+                typ = datetime.date
             else:
                 self.fail("Received unexpected type: %s" % key)
             self.assertIsInstance(value, typ)
