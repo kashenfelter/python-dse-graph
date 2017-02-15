@@ -35,14 +35,6 @@ build:
       sudo pip install nose-ignore-docstring
       echo "installing dse graph"
       sudo -E python setup.py install
-      pushd ./
-      cd $HOME
-      sudo pip uninstall gremlinpython
-      svn export https://github.com/aboudreault/tinkerpop/branches/dse-graph-tests/gremlin-python/src/main/jython
-      cd jython
-      echo "Installing custom gremlinpython build"
-      sudo -E python setup.py install
-      popd
       pwd
       echo "==========RUNNING DSE TESTS INTEGRATION TESTS=========="
       echo $PYTHONPATH
