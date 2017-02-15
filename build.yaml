@@ -17,6 +17,7 @@ build:
       export PATH=$JAVA_HOME/bin:$PATH
       export CASS_DRIVER_NO_CYTHON=1
       # install master branch of driver.
+      sudo pip list |grep gremlinpython
       sudo apt-get -y install subversion
       pushd ./
       echo "installing ccm"
