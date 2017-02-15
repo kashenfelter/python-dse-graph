@@ -37,7 +37,10 @@ build:
       sudo -E python setup.py install
       pwd
       echo "==========RUNNING DSE TESTS INTEGRATION TESTS=========="
+      sudo pip
+      python -c 'import imp;import tests;print imp.find_module("tests")'
       echo $PYTHONPATH
+      sudo pip list |grep gremlinpython
       CASSANDRA_DIR=$CCM_INSTALL_DIR DSE_VERSION=$CCM_VERSION nosetests -s -v --logging-format="[%(levelname)s] %(asctime)s %(thread)d: %(message)s" --with-ignore-docstrings --with-xunit --xunit-file=integration_results.xml graphtests/integration/ || true
 
   - xunit:
