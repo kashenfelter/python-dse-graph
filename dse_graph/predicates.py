@@ -18,8 +18,8 @@ class GeoP(object):
         self.other = other
 
     @staticmethod
-    def inside(*args):
-        return GeoP("inside", *args)
+    def inside(*args, **kwargs):
+        return GeoP("inside", *args, **kwargs)
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.operator == other.operator and self.value == other.value and self.other == other.other
