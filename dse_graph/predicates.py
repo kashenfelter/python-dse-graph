@@ -141,4 +141,4 @@ class Geo(object):
 
         :param value: A Distance to look for.
         """
-        return GeoP('inside', value)
+        return GeoP.inside(value)
