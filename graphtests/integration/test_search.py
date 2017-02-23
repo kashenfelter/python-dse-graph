@@ -9,7 +9,7 @@
 
 from dse_graph import DseGraph
 import time
-from dse_graph.predicates import Search, Geo
+from dse_graph.predicates import Search, Geo, GeoUnit
 from tests.integration.advanced import BasicSharedGraphUnitTestCase, generate_address_book_graph, use_single_node_with_graph_and_solr
 from tests.integration import greaterthanorequaldse51
 from dse.util import Distance
@@ -122,12 +122,42 @@ class AbstractSearchTest():
 
         @since 1.0.0
         @jira_ticket PYTHON-660
-        @expected_result all names with a geo location within a 2 radius distance of -92,44 are returned
+        @expected_result all names with a geo location within a 2 degree distance of -92,44 are returned
 
         @test_category dse graph
         """
         self._assert_in_distance(
             Geo.inside(Distance(-92, 44, 2)),
+            ["Paul Thomas Joe", "George Bill Steve"]
+        )
+
+    def test_search_by_distance_with_meters_units(self):
+        """
+        Test to validate that solr searches by distance.
+
+        @since 2.0.0
+        @jira_ticket PYTHON-698
+        @expected_result all names with a geo location within a 56k-meter radius of -92,44 are returned
+
+        @test_category dse graph
+        """
+        self._assert_in_distance(
+            Geo.inside(Distance(-92, 44, 56000), GeoUnit.METERS),
+            ["Paul Thomas Joe"]
+        )
+
+    def test_search_by_distance_with_miles_units(self):
+        """
+        Test to validate that solr searches by distance.
+
+        @since 2.0.0
+        @jira_ticket PYTHON-698
+        @expected_result all names with a geo location within a 70-mile radius of -92,44 are returned
+
+        @test_category dse graph
+        """
+        self._assert_in_distance(
+            Geo.inside(Distance(-92, 44, 70), GeoUnit.MILES),
             ["Paul Thomas Joe", "George Bill Steve"]
         )
 

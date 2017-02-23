@@ -7,7 +7,11 @@
 #
 # http://www.datastax.com/terms/datastax-dse-driver-license-terms
 
+import math
+
 from gremlin_python.process.traversal import P
+
+from dse.util import Distance
 
 
 class GeoP(object):
@@ -132,13 +136,30 @@ class Search(object):
         return TextDistanceP.phrase(value, proximity)
 
 
+class GeoUnit(object):
+    _EARTH_MEAN_RADIUS_KM = 6371.0087714
+    _DEGREES_TO_RADIANS = math.pi / 180
+    _DEG_TO_KM = _DEGREES_TO_RADIANS * _EARTH_MEAN_RADIUS_KM
+    _KM_TO_DEG = 1 / _DEG_TO_KM
+    _MILES_TO_KM = 1.609344001
+
+    MILES = _MILES_TO_KM * _KM_TO_DEG
+    KILOMETERS = _KM_TO_DEG
+    METERS = _KM_TO_DEG / 1000.0
+    DEGREES = 1
+
 class Geo(object):
 
     @staticmethod
-    def inside(value):
+    def inside(value, units=GeoUnit.DEGREES):
         """
         Search any instance of geometry inside the Distance targeted.
 
         :param value: A Distance to look for.
+        :param units: The units for ``value``. See GeoUnit enum. (Can also
+            provide an integer to use as a multiplier to convert ``value`` to
+            degrees.)
         """
-        return GeoP.inside(value)
+        return GeoP.inside(
+            value=Distance(x=value.x, y=value.y, radius=value.radius * units)
+        )
