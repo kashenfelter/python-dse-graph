@@ -108,6 +108,14 @@ class AbstractSearchTest():
         self.assertIn("Paul Thomas Joe", results_list )
         self.assertIn( "Jill Alice", results_list )
 
+    def _assert_in_distance(self, inside, names):
+        g = self.fetch_traversal_source()
+        traversal = g.V().has("person", "coordinates", inside).values("name")
+        results_list = self.execute_traversal(traversal)
+        for name in names:
+            self.assertIn(name, results_list)
+        self.assertEqual(len(results_list), len(names))
+
     def test_search_by_distance(self):
         """
         Test to validate that solr searches by distance.
@@ -118,12 +126,10 @@ class AbstractSearchTest():
 
         @test_category dse graph
         """
-        g = self.fetch_traversal_source()
-        traversal =  g.V().has("person", "coordinates", Geo.inside(Distance(-92, 44, 2))).values("name");
-        results_list = self.execute_traversal(traversal)
-        self.assertEqual(len(results_list), 2)
-        self.assertIn("Paul Thomas Joe", results_list )
-        self.assertIn( "George Bill Steve", results_list )
+        self._assert_in_distance(
+            Geo.inside(Distance(-92, 44, 2)),
+            ["Paul Thomas Joe", "George Bill Steve"]
+        )
 
     @greaterthanorequaldse51
     def test_search_by_fuzzy(self):
