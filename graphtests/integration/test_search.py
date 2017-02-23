@@ -7,11 +7,6 @@
 #
 # http://www.datastax.com/terms/datastax-dse-driver-license-terms
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
 from dse_graph import DseGraph
 import time
 from dse_graph.predicates import Search, Geo
@@ -25,7 +20,6 @@ def setup_module():
 
 
 class AbstractSearchTest():
-
 
     def test_search_by_prefix(self):
         """
@@ -42,7 +36,6 @@ class AbstractSearchTest():
         results_list = self.execute_traversal(traversal)
         self.assertEqual(len(results_list), 1)
         self.assertEqual(results_list[0], "Paul Thomas Joe")
-
 
     def test_search_by_regex(self):
         """
