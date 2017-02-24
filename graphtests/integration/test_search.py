@@ -7,14 +7,9 @@
 #
 # http://www.datastax.com/terms/datastax-dse-driver-license-terms
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
 from dse_graph import DseGraph
 import time
-from dse_graph.predicates import Search, Geo
+from dse_graph.predicates import Search, Geo, GeoUnit
 from tests.integration.advanced import BasicSharedGraphUnitTestCase, generate_address_book_graph, use_single_node_with_graph_and_solr
 from tests.integration import greaterthanorequaldse51
 from dse.util import Distance
@@ -25,7 +20,6 @@ def setup_module():
 
 
 class AbstractSearchTest():
-
 
     def test_search_by_prefix(self):
         """
@@ -42,7 +36,6 @@ class AbstractSearchTest():
         results_list = self.execute_traversal(traversal)
         self.assertEqual(len(results_list), 1)
         self.assertEqual(results_list[0], "Paul Thomas Joe")
-
 
     def test_search_by_regex(self):
         """
@@ -115,22 +108,58 @@ class AbstractSearchTest():
         self.assertIn("Paul Thomas Joe", results_list )
         self.assertIn( "Jill Alice", results_list )
 
+    def _assert_in_distance(self, inside, names):
+        g = self.fetch_traversal_source()
+        traversal = g.V().has("person", "coordinates", inside).values("name")
+        results_list = self.execute_traversal(traversal)
+        for name in names:
+            self.assertIn(name, results_list)
+        self.assertEqual(len(results_list), len(names))
+
     def test_search_by_distance(self):
         """
         Test to validate that solr searches by distance.
 
         @since 1.0.0
         @jira_ticket PYTHON-660
-        @expected_result all names with a geo location within a 2 radius distance of -92,44 are returned
+        @expected_result all names with a geo location within a 2 degree distance of -92,44 are returned
 
         @test_category dse graph
         """
-        g = self.fetch_traversal_source()
-        traversal =  g.V().has("person", "coordinates", Geo.inside(Distance(-92, 44, 2))).values("name");
-        results_list = self.execute_traversal(traversal)
-        self.assertEqual(len(results_list), 2)
-        self.assertIn("Paul Thomas Joe", results_list )
-        self.assertIn( "George Bill Steve", results_list )
+        self._assert_in_distance(
+            Geo.inside(Distance(-92, 44, 2)),
+            ["Paul Thomas Joe", "George Bill Steve"]
+        )
+
+    def test_search_by_distance_with_meters_units(self):
+        """
+        Test to validate that solr searches by distance.
+
+        @since 2.0.0
+        @jira_ticket PYTHON-698
+        @expected_result all names with a geo location within a 56k-meter radius of -92,44 are returned
+
+        @test_category dse graph
+        """
+        self._assert_in_distance(
+            Geo.inside(Distance(-92, 44, 56000), GeoUnit.METERS),
+            ["Paul Thomas Joe"]
+        )
+
+    def test_search_by_distance_with_miles_units(self):
+        """
+        Test to validate that solr searches by distance.
+
+        @since 2.0.0
+        @jira_ticket PYTHON-698
+        @expected_result all names with a geo location within a 70-mile radius of -92,44 are returned
+
+        @test_category dse graph
+        """
+        self._assert_in_distance(
+            Geo.inside(Distance(-92, 44, 70), GeoUnit.MILES),
+            ["Paul Thomas Joe", "George Bill Steve"]
+        )
 
     @greaterthanorequaldse51
     def test_search_by_fuzzy(self):
