@@ -232,10 +232,9 @@ class DateIO(object):
 
 class TimeIO(object):
     FORMATS = [
-        '%H:%M:%S.%f',
-        '%H:%M:%S',
         '%H:%M',
-
+        '%H:%M:%S',
+        '%H:%M:%S.%f'
     ]
 
     @classmethod
