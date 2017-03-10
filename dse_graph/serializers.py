@@ -46,7 +46,9 @@ uuid         | g:UUID         | UUID
 bigdecimal   | gx:BigDecimal  | Decimal
 duration     | gx:Duration    | timedelta
 inet         | gx:InetAddress | str (unicode)
-timestamp    | gx:Instant     | Datetime
+timestamp    | gx:Instant     | datetime.datetime
+date         | gx:LocalDate   | datetime.date
+time         | gx:LocalTime   | datetime.time
 smallint     | gx:Int16       | int
 varint       | gx:BigInteger  | long
 date         | gx:LocalDate   | Date
@@ -228,6 +230,33 @@ class DateIO(object):
             return v
 
 
+class TimeIO(object):
+    FORMATS = [
+        '%H:%M',
+        '%H:%M:%S',
+        '%H:%M:%S.%f'
+    ]
+
+    @classmethod
+    def dictify(cls, v, _):
+        return GraphSONUtil.typedValue('LocalTime', v.strftime(cls.FORMATS[0]), prefix='gx')
+
+    @classmethod
+    def objectify(cls, v, _):
+        dt = None
+        for f in cls.FORMATS:
+            try:
+                dt = datetime.datetime.strptime(v, f)
+                break
+            except ValueError:
+                continue
+
+        if dt is None:
+            raise ValueError('Unable to decode LocalTime: %s' % v)
+
+        return dt.time()
+
+
 class StringDeserializer(object):
     @classmethod
     def objectify(cls, v, _):
@@ -288,6 +317,7 @@ serializers = {
     datetime.datetime: InstantIO,
     datetime.timedelta: DurationIO,
     datetime.date: DateIO,
+    datetime.time: TimeIO,
     bytearray: BlobIO,
     Point: PointIO,
     LineString: LineStringIO,
@@ -321,7 +351,8 @@ deserializers = {
     "dse:LineString": LineStringIO,
     "dse:Polygon": PolygonIO,
     "dse:Distance": DistanceIO,
-    "gx:LocalDate": DateIO
+    "gx:LocalDate": DateIO,
+    "gx:LocalTime": TimeIO
 }
 
 dse_deserializers = deserializers.copy()
