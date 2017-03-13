@@ -123,7 +123,7 @@ class AbstractTraversalTest():
 
     def test_result_types(self):
         """
-        Test to validate that the edge and vertex version of results are constructed ccorrectly.
+        Test to validate that the edge and vertex version of results are constructed correctly.
 
         @since 1.0.0
         @jira_ticket PYTHON-641
@@ -413,8 +413,9 @@ class ImplicitExecutionTest(AbstractTraversalTest, BasicGraphUnitTestCase):
     def _validate_type(self, g,  vertex):
         props = self.fetch_vertex_props(g, vertex)
         for prop in props:
-            value =  prop.value
-            if any(prop.key.startswith(t) for t in ('int', 'short')):
+            value = prop.value
+            key = prop.key
+            if any(key.startswith(t) for t in ('int', 'short')):
                 typ = int
 
             elif any(prop.key.startswith(t) for t in ('long',)):
@@ -422,20 +423,22 @@ class ImplicitExecutionTest(AbstractTraversalTest, BasicGraphUnitTestCase):
                     typ = int
                 else:
                     typ = long
-            elif any(prop.key.startswith(t) for t in ('float', 'double')):
+            elif any(key.startswith(t) for t in ('float', 'double')):
                 typ = float
             elif any(prop.key.startswith(t) for t in ('polygon',)):
                 typ = Polygon
-            elif any(prop.key.startswith(t) for t in ('point',)):
+            elif any(key.startswith(t) for t in ('point',)):
                 typ = Point
-            elif any(prop.key.startswith(t) for t in ('Linestring',)):
+            elif any(key.startswith(t) for t in ('Linestring',)):
                 typ = LineString
-            elif any(prop.key.startswith(t) for t in ('neg',)):
+            elif any(key.startswith(t) for t in ('neg',)):
                 typ=string_types
-            elif any(prop.key.startswith(t) for t in ('date',)):
+            elif any(key.startswith(t) for t in ('date',)):
                 typ = datetime.date
+            elif any(key.startswith(t) for t in ('time',)):
+                typ = datetime.time
             else:
-                self.fail("Received unexpected type: %s" % prop.key)
+                self.fail("Received unexpected type: %s" % key)
             self.assertIsInstance(value, typ)
 
 
@@ -501,6 +504,8 @@ class ExplicitExecutionTest(AbstractTraversalTest, BasicGraphUnitTestCase):
                 typ=string_types
             elif any(key.startswith(t) for t in ('date',)):
                 typ = datetime.date
+            elif any(key.startswith(t) for t in ('time',)):
+                typ = datetime.time
             else:
                 self.fail("Received unexpected type: %s" % key)
             self.assertIsInstance(value, typ)
