@@ -123,7 +123,7 @@ class AbstractTraversalTest():
 
     def test_result_types(self):
         """
-        Test to validate that the edge and vertex version of results are constructed ccorrectly.
+        Test to validate that the edge and vertex version of results are constructed correctly.
 
         @since 1.0.0
         @jira_ticket PYTHON-641
@@ -413,30 +413,9 @@ class ImplicitExecutionTest(AbstractTraversalTest, BasicGraphUnitTestCase):
     def _validate_type(self, g,  vertex):
         props = self.fetch_vertex_props(g, vertex)
         for prop in props:
-            value =  prop.value
-            if any(prop.key.startswith(t) for t in ('int', 'short')):
-                typ = int
-
-            elif any(prop.key.startswith(t) for t in ('long',)):
-                if sys.version_info >= (3, 0):
-                    typ = int
-                else:
-                    typ = long
-            elif any(prop.key.startswith(t) for t in ('float', 'double')):
-                typ = float
-            elif any(prop.key.startswith(t) for t in ('polygon',)):
-                typ = Polygon
-            elif any(prop.key.startswith(t) for t in ('point',)):
-                typ = Point
-            elif any(prop.key.startswith(t) for t in ('Linestring',)):
-                typ = LineString
-            elif any(prop.key.startswith(t) for t in ('neg',)):
-                typ=string_types
-            elif any(prop.key.startswith(t) for t in ('date',)):
-                typ = datetime.date
-            else:
-                self.fail("Received unexpected type: %s" % prop.key)
-            self.assertIsInstance(value, typ)
+            value = prop.value
+            key = prop.key
+            _validate_prop(key, value, self)
 
 
 class ExplicitExecutionTest(AbstractTraversalTest, BasicGraphUnitTestCase):
@@ -482,28 +461,7 @@ class ExplicitExecutionTest(AbstractTraversalTest, BasicGraphUnitTestCase):
     def _validate_type(self, g,  vertex):
         for key in vertex.properties:
             value =  vertex.properties[key][0].value
-            if any(key.startswith(t) for t in ('int', 'short')):
-                typ = int
-            elif any(key.startswith(t) for t in ('long',)):
-                if sys.version_info >= (3, 0):
-                    typ = int
-                else:
-                    typ = long
-            elif any(key.startswith(t) for t in ('float', 'double')):
-                typ = float
-            elif any(key.startswith(t) for t in ('polygon',)):
-                typ = Polygon
-            elif any(key.startswith(t) for t in ('point',)):
-                typ = Point
-            elif any(key.startswith(t) for t in ('Linestring',)):
-                typ = LineString
-            elif any(key.startswith(t) for t in ('neg',)):
-                typ=string_types
-            elif any(key.startswith(t) for t in ('date',)):
-                typ = datetime.date
-            else:
-                self.fail("Received unexpected type: %s" % key)
-            self.assertIsInstance(value, typ)
+            _validate_prop(key, value, self)
 
     def _validate_path_result_type(self, g, path_obj):
         validate_path_result_type(self, path_obj)
@@ -524,3 +482,30 @@ class ExplicitExecutionTest(AbstractTraversalTest, BasicGraphUnitTestCase):
                 self.assertAlmostEqual(original, value, delta=.01)
             else:
                 self.assertEqual(original, value)
+
+def _validate_prop(key, value, unittest):
+    if any(key.startswith(t) for t in ('int', 'short')):
+        typ = int
+
+    elif any(key.startswith(t) for t in ('long',)):
+        if sys.version_info >= (3, 0):
+            typ = int
+        else:
+            typ = long
+    elif any(key.startswith(t) for t in ('float', 'double')):
+        typ = float
+    elif any(key.startswith(t) for t in ('polygon',)):
+        typ = Polygon
+    elif any(key.startswith(t) for t in ('point',)):
+        typ = Point
+    elif any(key.startswith(t) for t in ('Linestring',)):
+        typ = LineString
+    elif any(key.startswith(t) for t in ('neg',)):
+        typ = string_types
+    elif any(key.startswith(t) for t in ('date',)):
+        typ = datetime.date
+    elif any(key.startswith(t) for t in ('time',)):
+        typ = datetime.time
+    else:
+        unittest.fail("Received unexpected type: %s" % key)
+    unittest.assertIsInstance(value, typ)

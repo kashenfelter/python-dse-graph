@@ -239,7 +239,7 @@ class TimeIO(object):
 
     @classmethod
     def dictify(cls, v, _):
-        return GraphSONUtil.typedValue('LocalTime', v.strftime(cls.FORMATS[0]), prefix='gx')
+        return GraphSONUtil.typedValue('LocalTime', v.strftime(cls.FORMATS[2]), prefix='gx')
 
     @classmethod
     def objectify(cls, v, _):
