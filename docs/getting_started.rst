@@ -8,7 +8,7 @@ Configuring a Traversal Execution Profile
 
 The DSE Graph extension takes advantage of *configuration profiles* to allow different execution configurations for the various
 query handlers. Graph Traversals execution requires a custom execution profile (to enable Gremlin-bytecode as query language). Here is
-how to accomplish this this configuration:
+how to accomplish this configuration:
 
 .. code-block:: python
 
@@ -28,12 +28,44 @@ If you want to change execution property defaults, please see the `Execution Pro
 for a more generalized discussion of the API. Graph traversal queries use the same execution profile defined for DSE graph. If you
 need to change the default properties, please refer to this documentation page: `DSE Graph Queries <http://docs.datastax.com/en/developer/python-driver-dse/1.1/graph/>`_
 
+Graph Traversal Queries
+~~~~~~~~~~~~~~~~~~~~~~~
 
-Graph Traversal Queries via a DSE Session (Explicit Execution)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The base DSE driver provides `Session.execute_graph`, which allows users to execute traversal query strings.
+To take an example from the DSE driver documentation,
+
+.. code-block:: python
+
+
+    from dse.cluster import Cluster, GraphExecutionProfile, EXEC_PROFILE_GRAPH_DEFAULT, EXEC_PROFILE_GRAPH_SYSTEM_DEFAULT
+    from dse.graph import GraphOptions
+
+    # create the default execution profile pointing at a specific graph
+    graph_name = 'test'
+    ep = GraphExecutionProfile(graph_options=GraphOptions(graph_name=graph_name))
+    cluster = Cluster(execution_profiles={EXEC_PROFILE_GRAPH_DEFAULT: ep})
+    session = cluster.connect()
+
+    # use the system execution profile (or one with no graph_options.graph_name set) when accessing the system API
+    session.execute_graph("system.graph(name).ifNotExists().create()", {'name': graph_name},
+                          execution_profile=EXEC_PROFILE_GRAPH_SYSTEM_DEFAULT)
+
+    # ... set dev mode or configure graph schema ...
+
+    result = session.execute_graph('g.addV("name", "John", "age", 35)')  # uses the default execution profile
+
+For more details on using TinkerPop, see `the gremlin-python documentation
+<http://tinkerpop.apache.org/docs/current/reference/#gremlin-python>`_.
+
+This module provides a Python API for specifying graph traversal with TinkerPop.
+These native traversal queries can be executed explicitly, with a DSE `Session` object,
+or implicitly
+
+Explicit Graph Traversal Excution with a DSE Session
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Traversal queries can be executed explicitly using `session.execute_graph` or `session.execute_graph_async`. These functions
-return results as DSE graph types. If you are familiar to DSE queries or need async execution, you might prefer that way.
+return results as DSE graph types. If you are familiar with DSE queries or need async execution, you might prefer that way.
 
 .. code-block:: python
 
@@ -42,9 +74,8 @@ return results as DSE graph types. If you are familiar to DSE queries or need as
     for result in session.execute_graph(query):  # Execute a GraphTraversal and print results
         print result
 
-
-Graph Traversal Queries via TinkerPop (Implicit Execution)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Implicit Graph Traversal Execution with TinkerPop
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Using the :class:`dse_graph.DseGraph` class, you can build a GraphTraversalSource
 that will execute queries on a DSE session. We call this *implicit execution* because it
@@ -58,7 +89,6 @@ For example:
     g = DseGraph.traversal_source(session)  # Build the GraphTraversalSource
     print g.V().toList()  # Traverse the Graph
 
-
 You can also create multiple GraphTraversalSources and use them with the same execution profile (for different graphs):
 
 .. code-block:: python
@@ -68,7 +98,6 @@ You can also create multiple GraphTraversalSources and use them with the same ex
 
     print g_users.V().toList()  # Traverse the users Graph
     print g_drones.V().toList()  # Traverse the drones Graph
-
 
 Specify the Execution Profile explicitly
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
