@@ -13,6 +13,7 @@ from dse_graph.predicates import Search, Geo, GeoUnit
 from tests.integration.advanced import BasicSharedGraphUnitTestCase, generate_address_book_graph, use_single_node_with_graph_and_solr
 from tests.integration import greaterthanorequaldse51
 from dse.util import Distance
+from dse import InvalidRequest
 
 
 def setup_module():
@@ -109,12 +110,33 @@ class AbstractSearchTest():
         self.assertIn( "Jill Alice", results_list )
 
     def _assert_in_distance(self, inside, names):
+        """
+        Helper function that asserts that an exception is arisen if geodetic predicates are used
+        in cartesian geometry. Also asserts that the expected list is equal to the returned from
+        the transversal using different search indexes.
+        """
+        def assert_equal_list(L1, L2):
+            return len(L1) == len(L2) and sorted(L1) == sorted(L2)
+
         g = self.fetch_traversal_source()
-        traversal = g.V().has("person", "coordinates", inside).values("name")
+
+        traversal = g.V().has("person", "pointPropWithBoundsWithSearchIndex", inside).values("name")
+        # throws an exception because of a SOLR/Search limitation in the indexing process
+        # may be resolved in the future
+        self.assertRaises(InvalidRequest, self.execute_traversal, traversal)
+
+        traversal = g.V().has("person", "pointPropWithBounds", inside).values("name")
         results_list = self.execute_traversal(traversal)
-        for name in names:
-            self.assertIn(name, results_list)
-        self.assertEqual(len(results_list), len(names))
+        assert_equal_list(names, results_list)
+
+        traversal = g.V().has("person", "pointPropWithGeoBoundsWithSearchIndex", inside).values("name")
+        results_list = self.execute_traversal(traversal)
+        assert_equal_list(names, results_list)
+
+        traversal = g.V().has("person", "pointPropWithGeoBounds", inside).values("name")
+        results_list = self.execute_traversal(traversal)
+        assert_equal_list(names, results_list)
+
 
     def test_search_by_distance(self):
         """
@@ -161,6 +183,40 @@ class AbstractSearchTest():
             ["Paul Thomas Joe", "George Bill Steve"]
         )
 
+    def test_search_by_distance_check_limit(self):
+        """
+        Test to validate that solr searches by distance using several units. It will also validate
+        that and exception is arisen if geodetic predicates are used against cartesian geometry
+
+        @since 2.0.0
+        @jira_ticket PYTHON-698
+        @expected_result if the search distance is below the real distance only one
+        name will be in the list, otherwise, two
+
+        @test_category dse graph
+        """
+        # Paul Thomas Joe and George Bill Steve are 64.6923761881464 km apart
+        self._assert_in_distance(
+            Geo.inside(Distance(-92.46295, 44.0234, 65), GeoUnit.KILOMETERS),
+            ["George Bill Steve", "Paul Thomas Joe"]
+        )
+
+        self._assert_in_distance(
+            Geo.inside(Distance(-92.46295, 44.0234, 64), GeoUnit.KILOMETERS),
+            ["Paul Thomas Joe"]
+        )
+
+        # Paul Thomas Joe and George Bill Steve are 40.19797892069464 miles apart
+        self._assert_in_distance(
+            Geo.inside(Distance(-92.46295, 44.0234, 41), GeoUnit.MILES),
+            ["George Bill Steve", "Paul Thomas Joe"]
+        )
+
+        self._assert_in_distance(
+            Geo.inside(Distance(-92.46295, 44.0234, 40), GeoUnit.MILES),
+            ["Paul Thomas Joe"]
+        )
+
     @greaterthanorequaldse51
     def test_search_by_fuzzy(self):
         """
@@ -202,7 +258,7 @@ class AbstractSearchTest():
         self.assertIn("Paul Thomas Joe", results_list )
         self.assertIn("James Paul Smith", results_list )
 
-        traversal =  g.V().has("person", "description", Search.token_fuzzy("loues", 1)).values("name");
+        traversal = g.V().has("person", "description", Search.token_fuzzy("loues", 1)).values("name");
         results_list = self.execute_traversal(traversal)
         self.assertEqual(len(results_list), 0)
 
