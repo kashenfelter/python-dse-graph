@@ -137,7 +137,7 @@ class AbstractSearchTest():
         results_list = self.execute_traversal(traversal)
         assert_equal_list(names, results_list)
 
-
+    @greaterthanorequaldse51
     def test_search_by_distance(self):
         """
         Test to validate that solr searches by distance.
@@ -153,6 +153,7 @@ class AbstractSearchTest():
             ["Paul Thomas Joe", "George Bill Steve"]
         )
 
+    @greaterthanorequaldse51
     def test_search_by_distance_with_meters_units(self):
         """
         Test to validate that solr searches by distance.
@@ -168,6 +169,7 @@ class AbstractSearchTest():
             ["Paul Thomas Joe"]
         )
 
+    @greaterthanorequaldse51
     def test_search_by_distance_with_miles_units(self):
         """
         Test to validate that solr searches by distance.
@@ -183,6 +185,7 @@ class AbstractSearchTest():
             ["Paul Thomas Joe", "George Bill Steve"]
         )
 
+    @greaterthanorequaldse51
     def test_search_by_distance_check_limit(self):
         """
         Test to validate that solr searches by distance using several units. It will also validate
