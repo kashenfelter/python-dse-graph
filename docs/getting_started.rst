@@ -36,7 +36,6 @@ To take an example from the DSE driver documentation,
 
 .. code-block:: python
 
-
     from dse.cluster import Cluster, GraphExecutionProfile, EXEC_PROFILE_GRAPH_DEFAULT, EXEC_PROFILE_GRAPH_SYSTEM_DEFAULT
     from dse.graph import GraphOptions
 
@@ -47,12 +46,22 @@ To take an example from the DSE driver documentation,
     session = cluster.connect()
 
     # use the system execution profile (or one with no graph_options.graph_name set) when accessing the system API
-    session.execute_graph("system.graph(name).ifNotExists().create()", {'name': graph_name},
+    session.execute_graph("system.graph(name).ifNotExists().create();", {'name': graph_name},
                           execution_profile=EXEC_PROFILE_GRAPH_SYSTEM_DEFAULT)
 
-    # ... set dev mode or configure graph schema ...
+    # allow creation of vertices with label 'user'...
+    session.execute_graph("schema.vertexLabel('user').ifNotExists().create();")
+    # create a property key 'name' with type Text...
+    session.execute_graph("schema.propertyKey('name').Text().ifNotExists().create();")
+    # and allow 'user' vertices to have a 'name' label
+    session.execute_graph("schema.vertexLabel('user').properties('name').add()")
 
-    result = session.execute_graph('g.addV("name", "John", "age", 35)')  # uses the default execution profile
+    # Create an 'age' label for the 'user' vertex label as well
+    session.execute_graph("schema.propertyKey('age').Int().ifNotExists().create();")
+    session.execute_graph("schema.vertexLabel('user').properties('age').add()")
+
+    # Use the default execution profile to create a new 'user' vertex
+    result = session.execute_graph('g.addV(label, "user", "name", "John", "age", "35")')
 
 For more details on using TinkerPop, see `the gremlin-python documentation
 <http://tinkerpop.apache.org/docs/current/reference/#gremlin-python>`_.
