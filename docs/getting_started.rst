@@ -123,16 +123,6 @@ For example:
     # view the results of the execution
     pprint(g.V().toList())
 
-You can also create multiple GraphTraversalSources and use them with the same execution profile (for different graphs):
-
-.. code-block:: python
-
-    g_users = DseGraph.traversal_source(session, graph_name='users')
-    g_drones = DseGraph.traversal_source(session, graph_name='drones')
-
-    print g_users.V().toList()  # Traverse the users Graph
-    print g_drones.V().toList()  # Traverse the drones Graph
-
 Specify the Execution Profile explicitly
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -150,11 +140,16 @@ one as usual and use it explicitly. Here is an example:
     cluster.add_execution_profile('graph_traversal', ep)
     session = cluster.connect()
 
-    # implicit execution
-    g = DseGraph.traversal_source(session, execution_profile='graph_traversal')  # Build the GraphTraversalSource
-    print g.V().toList()  # Traverse the Graph
-
-    # explicit execution
     g = DseGraph.traversal_source()
     query = DseGraph.query_from_traversal(g.V())
     session.execute_graph(query, execution_profile='graph_traversal')
+
+You can also create multiple GraphTraversalSources and use them with the same execution profile (for different graphs):
+
+.. code-block:: python
+
+    g_users = DseGraph.traversal_source(session, graph_name='users', ep)
+    g_drones = DseGraph.traversal_source(session, graph_name='drones', ep)
+
+    print g_users.V().toList()  # Traverse the users Graph
+    print g_drones.V().toList()  # Traverse the drones Graph
