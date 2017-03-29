@@ -92,7 +92,7 @@ Below is an example of explicit execution. For this example, assume the schema h
     cluster = Cluster(execution_profiles={EXEC_PROFILE_GRAPH_DEFAULT: tinkerpop_ep})
     session = cluster.connect()
 
-    g = DseGraph.traversal_source(session=session, execution_profile=graph_name)
+    g = DseGraph.traversal_source(session=session)
     addV_query = DseGraph.query_from_traversal(
         g.addV('user').property('name', 'Preeta').property('age', 32)
     )
@@ -107,16 +107,21 @@ Implicit Graph Traversal Execution with TinkerPop
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Using the :class:`dse_graph.DseGraph` class, you can build a GraphTraversalSource
-that will execute queries on a DSE session. We call this *implicit execution* because it
-doesn't rely on any particular function to execute the query. Everything is managed
-internally by TinkerPop while traversing the graph and the results are TinkerPop types as well.
+that will execute queries on a DSE session without explicitly passing anything to
+that session. We call this *implicit execution* because the `Session` is not
+explicitly involved. Everything is managed internally by TinkerPop while
+traversing the graph and the results are TinkerPop types as well.
 
 For example:
 
 .. code-block:: python
 
-    g = DseGraph.traversal_source(session)  # Build the GraphTraversalSource
-    print g.V().toList()  # Traverse the Graph
+    # Build the GraphTraversalSource
+    g = DseGraph.traversal_source(session)
+    # implicitly execute the query by traversing the TraversalSource
+    g.addV('user').property('name', 'Preeta').property('age', 32).toList()
+    # view the results of the execution
+    pprint(g.V().toList())
 
 You can also create multiple GraphTraversalSources and use them with the same execution profile (for different graphs):
 
