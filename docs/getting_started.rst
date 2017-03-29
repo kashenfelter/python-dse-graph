@@ -75,13 +75,33 @@ Explicit Graph Traversal Excution with a DSE Session
 
 Traversal queries can be executed explicitly using `session.execute_graph` or `session.execute_graph_async`. These functions
 return results as DSE graph types. If you are familiar with DSE queries or need async execution, you might prefer that way.
+Below is an example of explicit execution. For this example, assume the schema has been generated as above:
 
 .. code-block:: python
 
-    g = DseGraph.traversal_source()
-    query = DseGraph.query_from_traversal(g.V())
-    for result in session.execute_graph(query):  # Execute a GraphTraversal and print results
-        print result
+    from dse_graph import DseGraph
+    from pprint import pprint
+
+
+    # create ExecutionProfile with DSE_GRAPH_QUERY_LANGUAGE
+    # so we can use TinkerPop API
+    tinkerpop_ep = GraphExecutionProfile(
+        graph_options=GraphOptions(graph_name=graph_name,
+                                   graph_language=DseGraph.DSE_GRAPH_QUERY_LANGUAGE)
+    )
+    cluster = Cluster(execution_profiles={EXEC_PROFILE_GRAPH_DEFAULT: tinkerpop_ep})
+    session = cluster.connect()
+
+    g = DseGraph.traversal_source(session=session, execution_profile=graph_name)
+    addV_query = DseGraph.query_from_traversal(
+        g.addV('user').property('name', 'Preeta').property('age', 32)
+    )
+    V_query = DseGraph.query_from_traversal(g.V())
+
+    for result in session.execute_graph(addV_query):
+        pprint(result.value)
+    for result in session.execute_graph(V_query):
+        pprint(result.value)
 
 Implicit Graph Traversal Execution with TinkerPop
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
