@@ -22,8 +22,8 @@ The documentation can be found online `here <http://docs.datastax.com/en/develop
 
 A couple of links for getting up to speed:
 
-* `Installation <http://docs.datastax.com/en/developer/python-dse-graph/2.0.0b1/installation/>`_
-* `Getting started guide <http://docs.datastax.com/en/developer/python-dse-graph/2.0.0b1/getting_started/>`_
+* `Installation <http://docs.datastax.com/en/developer/python-dse-graph/1.0.0/installation/>`_
+* `Getting started guide <http://docs.datastax.com/en/developer/python-dse-graph/1.0.0/getting_started/>`_
 
 Reporting Problems
 ------------------
