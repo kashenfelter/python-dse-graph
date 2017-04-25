@@ -82,14 +82,9 @@ Below is an example of explicit execution. For this example, assume the schema h
     from dse_graph import DseGraph
     from pprint import pprint
 
-
-    # create ExecutionProfile with DSE_GRAPH_QUERY_LANGUAGE
-    # so we can use TinkerPop API
-    tinkerpop_ep = GraphExecutionProfile(
-        graph_options=GraphOptions(graph_name=graph_name,
-                                   graph_language=DseGraph.DSE_GRAPH_QUERY_LANGUAGE)
-    )
-    cluster = Cluster(execution_profiles={EXEC_PROFILE_GRAPH_DEFAULT: tinkerpop_ep})
+    # create a tinkerpop graphson2 ExecutionProfile
+    ep = DseGraph.create_execution_profile('graph_name')
+    cluster = Cluster(execution_profiles={EXEC_PROFILE_GRAPH_DEFAULT: ep})
     session = cluster.connect()
 
     g = DseGraph.traversal_source(session=session)
