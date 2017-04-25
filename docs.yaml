@@ -8,4 +8,4 @@ sections:
     directory: docs
 versions:
   - name: 1.0.0
-    ref: 1.0.0
+    ref: 1.0-doc
