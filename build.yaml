@@ -19,6 +19,7 @@ build:
       # install master branch of driver.
       sudo pip list |grep gremlinpython
       sudo apt-get -y install subversion
+      sudo apt-get install -y libev4 libev-dev
       pushd ./
       echo "installing ccm"
       cd $HOME/ccm
